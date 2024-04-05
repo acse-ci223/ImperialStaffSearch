@@ -2,6 +2,8 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
+__all__ = ['Scraper']
+
 
 class Scraper:
     def __init__(self) -> None:
