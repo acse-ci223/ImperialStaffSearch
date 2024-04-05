@@ -13,8 +13,8 @@ class Database:
         Creates the profiles table if it doesn't exist.
         """
         self.cur.execute('''CREATE TABLE IF NOT EXISTS profiles (
-                            name TEXT PRIMARY KEY,
-                            url TEXT SECONDARY KEY,
+                            name TEXT SECONDARY KEY,
+                            url TEXT PRIMARY KEY,
                             department TEXT,
                             contact TEXT,
                             location TEXT,

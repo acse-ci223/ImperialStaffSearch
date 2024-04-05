@@ -1,4 +1,4 @@
-
+import time
 import logging
 import concurrent.futures
 
@@ -38,6 +38,7 @@ def main():
                 except Exception as exc:
                     logging.error(f"Profile for {url} failed to create")
                     logging.error(exc)
+        time.sleep(60)
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger().handlers[0].setFormatter(CustomFormatter())
