@@ -53,36 +53,47 @@ class SearchEngine:
     
     def __openai_rank(self, query: str, profiles: list[Profile]) -> list[Profile]:
         inst = """
-        Rank the following profiles based on their relevance to the given query.
-        Return only a list of dicts with the following structure:
-            {
-                'name': The name of the profile,
-                'department': The department of the profile,
-                'contact': The contact information of the profile,
-                'location': The location of the profile,
-                'links': The links array associated with the profile,
-                'summary': The summary of the profile,
-                'publications': The publications array associated with the profile
-            }
+        Sort the following profiles based on their relevance to the given query.
+        Return a list of json objects with the following structure:
+        {
+            'sorted_profiles':[
+                {
+                    'name': The name of the profile,
+                    'department': The department of the profile,
+                    'contact': The contact information of the profile,
+                    'location': The location of the profile,
+                    'links': The links array associated with the profile,
+                    'summary': The summary of the profile,
+                    'publications': The publications array associated with the profile,
+                    'url': The url of the profile
+                }
+            ]
+        }
         """
         msg = f"Query: {query}\n\n"
         for i, profile in enumerate(profiles):
-            msg += f"{i+1}. {str(profile)}\n"
+            msg += f"{i+1}. {str(profile.to_dict())}\n"
 
-        response = self.__client.chat.completions.create(
-            model="gpt-4-0125-preview",
-            seed=self.__seed,
-            response_format={"type": "json_object"},
-            messages=[
-                {"role": "system", "content": inst},
-                {"role": "user", "content": msg}
-            ]
-        )
-        res = response.choices[0].message.content
-        print(res)
+        try:
+            response = self.__client.chat.completions.create(
+                model="gpt-4-0125-preview",
+                seed=self.__seed,
+                response_format={"type": "json_object"},
+                messages=[
+                    {"role": "system", "content": inst},
+                    {"role": "user", "content": msg}
+                ]
+            )
+            res = eval(response.choices[0].message.content)
+            return res['sorted_profiles']
 
-    def search(self, query: str, top_n: int = 30) -> list[Profile]:
+        except openai.OpenAIError as e:
+            logging.error(f"Error with OpenAI API: {e}")
+
+        return []
+
+    def search(self, query: str, top_n: int = 5) -> list[Profile]:
         logging.info("Searching for: " + str(query))
         ranked_profiles = self.__simple_rank(query, top_n)
-        # ranked_profiles = self.__openai_rank(ranked_profiles)
+        ranked_profiles = self.__openai_rank(query, ranked_profiles)
         return ranked_profiles
