@@ -8,15 +8,15 @@ from contextlib import asynccontextmanager
 
 from src.Scraper import Scraper
 from src.Profile import Profile
-from src.Database import Database
+from src.Database import db
 from src.LoggerFormatter import CustomFormatter
+from src.Router import Router
 
 
 class AppMode(str, Enum):
     STOPPED = "STOPPED"
     RUNNING = "RUNNING"
 
-db = Database('profiles.db')
 scraper = Scraper()
 APP_MODE = AppMode.STOPPED
 
@@ -61,6 +61,7 @@ logging.basicConfig(level=logging.INFO)
 logging.getLogger().handlers[0].setFormatter(CustomFormatter())
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(Router)
 
 if __name__ == "__main__":
     import uvicorn

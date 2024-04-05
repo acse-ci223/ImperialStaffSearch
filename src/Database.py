@@ -57,12 +57,32 @@ class Database:
         """
         self.cur.execute('SELECT * FROM profiles WHERE url=?', (url,))
         return self.cur.fetchone() is not None
+    
+    def get_profiles(self) -> list[Profile]:
+        """
+        Retrieves all profiles from the database.
+
+        Returns
+        -------
+        list
+            A list of Profile objects.
+        """
+        self.cur.execute('SELECT * FROM profiles WHERE contact IS NOT NULL')
+        profiles = []
+        for row in self.cur.fetchall():
+            profile = Profile(row[1], name=row[0], department=row[2], contact=row[3], location=row[4], links=eval(row[5]), 
+                              summary=row[6], publications=eval(row[7]))
+            profiles.append(profile)
+        return profiles
 
     def close(self):
         """
         Closes the database connection.
         """
         self.conn.close()
+
+
+db = Database('profiles.db')
 
 
 if __name__ == "__main__":

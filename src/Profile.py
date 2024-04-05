@@ -7,10 +7,23 @@ __all__ = ['Profile']
 
 
 class Profile:
-    def __init__(self, url: str) -> None:
+    def __init__(self, url: str, **profile_data) -> None:
         self.url = url
-        self.__soup = self.__get_soup()
-        self.__data = self.__get_main()
+        self.__data = {
+            'name': 'N/A',
+            'department': 'N/A',
+            'contact': 'N/A',
+            'location': 'N/A',
+            'links': [],
+            'summary': 'N/A',
+            'publications': [],
+            'url': url
+        }
+        if len(profile_data) == 0:
+            self.__soup = self.__get_soup()
+            self.__data = self.__get_main()
+        else:
+            self.set_data(**profile_data)
     
     def __get_soup(self) -> BeautifulSoup:
         """
@@ -28,7 +41,8 @@ class Profile:
             'location': 'N/A',
             'links': [],
             'summary': 'N/A',
-            'publications': []
+            'publications': [],
+            'url': self.url
         }
 
         # Name extraction with redundancy
@@ -106,4 +120,31 @@ class Profile:
             return data
         return self.__data
 
+    def set_data(self, **kwargs) -> None:
+        """
+        Sets the profile data with the specified key-value pairs.
+        """
+        for key, value in kwargs.items():
+            if key in self.__data:
+                self.__data[key] = value
+            else:
+                logging.error(f"Key '{key}' does not exist in profile data")
+        
+    def to_dict(self) -> dict:
+        """
+        Returns the profile data as a dictionary.
+        """
+        return self.__data    
 
+    def __str__(self) -> str:
+        profile_str: str = f"Name: {self.__data['name']}, "
+        profile_str += f"Department: {self.__data['department']}, "
+        profile_str += f"Contact: {self.__data['contact']}, "
+        profile_str += f"Location: {self.__data['location']}, "
+        profile_str += f"Links: {', '.join(self.__data['links'])}, "
+        profile_str += f"Summary: {self.__data['summary']}, "
+        profile_str += f"Publications: {', '.join(self.__data['publications'])}"
+        return profile_str
+    
+    def __repr__(self) -> str:
+        return self.__str__()

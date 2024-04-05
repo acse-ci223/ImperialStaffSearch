@@ -3,3 +3,4 @@ requests
 streamlit
 uvicorn
 fastapi
+openai
