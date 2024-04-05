@@ -1,5 +1,6 @@
 import logging
 
+import openai
 from openai import OpenAI
 
 from src.Profile import Profile
@@ -14,7 +15,22 @@ class SearchEngine:
         logging.info("Search Engine initialized")
 
     def __query_to_keywords(self, query: str) -> list[str]:
-        return query.split()
+        try:
+            response = self.__client.chat.completions.create(
+                model="gpt-4-0125-preview",
+                seed=self.__seed,
+                messages=[
+                    {"role": "system", "content": "Extract keywords from the given text."},
+                    {"role": "user", "content": query}
+                ]
+            )
+            content = response.choices[0].message.content
+            keywords: list[str] = content.split(', ')
+            keywords = [keyword.strip() for keyword in keywords if keyword.strip()]
+            return keywords
+        except openai.OpenAIError as e:
+            logging.error(f"Error with OpenAI API: {e}")
+            return []
     
     def __rank_by_keywords(self, profiles: list[Profile], keywords: list[str]) -> list[Profile]:
         ranked_list = []
