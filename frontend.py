@@ -66,7 +66,6 @@ def display_profiles(profiles: list[dict]):
                         img_data = DEFAULT_IMAGE
                         st.image(img_data, width=150, use_column_width=True)
 
-                    
                 else:
                     st.image(DEFAULT_IMAGE, width=150, use_column_width=True)
             
