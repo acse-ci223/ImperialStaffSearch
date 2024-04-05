@@ -1,6 +1,7 @@
 bs4
 requests
 streamlit
+streamlit-scrollable-textbox
 uvicorn
 fastapi
 openai
