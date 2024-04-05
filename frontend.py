@@ -42,11 +42,7 @@ def display_placeholders():
                 st.markdown("### Name")
                 st.markdown("**Department:** Department")
                 st.markdown("**Contact:** Contact")
-                st.markdown("**Location:** Location")
                 st.markdown("**Summary:** Summary")
-                st.markdown("**Publications:**")
-                st.text("Publication 1")
-                st.text("Publication 2")
                 st.markdown("[View Full Profile](https://www.example.com)", unsafe_allow_html=True)
 
             st.markdown("---")
@@ -78,15 +74,8 @@ def display_profiles(profiles: list[dict]):
                 st.markdown(f"### {profile.get('name', 'N/A')}")
                 st.markdown(f"**Department:** {profile.get('department', 'N/A')}")
                 st.markdown(f"**Contact:** {profile.get('contact', 'N/A')}")
-                st.markdown(f"**Location:** {profile.get('location', 'N/A')}")
                 st.markdown(f"**Summary:**")
                 stx.scrollableTextbox(profile.get('summary', 'N/A'), height=250, border=False)
-                
-                if profile.get('publications'):
-                    st.markdown("**Publications:**")
-                    stx.scrollableTextbox("\n".join(profile.get('publications', 'N/A')), height=250, border=False)
-                else:
-                    st.markdown("**Publications:** N/A")
                 
                 if 'url' in profile and profile['url']:
                     st.markdown(f"[View Full Profile]({profile['url']})", unsafe_allow_html=True)
