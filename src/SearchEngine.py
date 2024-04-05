@@ -20,8 +20,10 @@ class SearchEngine:
                 model="gpt-4-0125-preview",
                 seed=self.__seed,
                 messages=[
-                    {"role": "system", "content": "Extract keywords from the given text."},
-                    {"role": "user", "content": query}
+                    {"role": "system",
+                     "content": "Understand the topic of the query and generate multiple relevant single-word keywords in a comma-separated list."},
+                    {"role": "user",
+                     "content": query}
                 ]
             )
             content = response.choices[0].message.content
@@ -38,7 +40,6 @@ class SearchEngine:
             string: str = str(profile)
             keyword_count = sum(keyword.lower() in string.lower() for keyword in keywords)
             ranked_list.append((profile, keyword_count))
-
         ranked_list.sort(key=lambda x: x[1], reverse=True)
         ranked_list: list[Profile] = [x[0] for x in ranked_list]
         return ranked_list
@@ -86,14 +87,13 @@ class SearchEngine:
             )
             res = eval(response.choices[0].message.content)
             return res['sorted_profiles']
-
         except openai.OpenAIError as e:
             logging.error(f"Error with OpenAI API: {e}")
-
         return []
 
-    def search(self, query: str, top_n: int = 5) -> list[Profile]:
+    def search(self, query: str, top_n: int = 25, extensive: bool= False) -> list[Profile]:
         logging.info("Searching for: " + str(query))
-        ranked_profiles = self.__simple_rank(query, top_n)
-        ranked_profiles = self.__openai_rank(query, ranked_profiles)
+        ranked_profiles: list[Profile] = self.__simple_rank(query, top_n)
+        if extensive:
+            ranked_profiles: list[Profile] = self.__openai_rank(query, ranked_profiles)
         return ranked_profiles

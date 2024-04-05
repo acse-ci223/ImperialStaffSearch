@@ -28,13 +28,14 @@ async def get_profiles(req: ProfileRequest) -> dict:
     try:
         engine = SearchEngine(db=db, open_ai_key=OPENAI_API_KEY)
         response = engine.search(req.query)
-        return {"profiles": response}
+        profiles = [profile.to_dict() for profile in response]
+        return {"profiles": profiles, "code": 200}
     except Exception as e:
         logging.error(e)
-        return {"error": 500}
+        return {"error": e, "code": 500}
+    
 
-
-@Router.get("/stop_scraping")
-async def stop_scraping() -> dict:
-    logging.info("GET /stop_scraping")
-    return {"error": 404}
+@Router.get("/ping")
+async def ping() -> dict:
+    logging.info("GET /ping")
+    return {"message": "pong", "code": 200}
