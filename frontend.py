@@ -31,7 +31,7 @@ search_results_placeholder = st.empty()
 # Function to display placeholders for profiles
 def display_placeholders():
     with search_results_placeholder.container():
-        for _ in range(3):
+        for id in range(3):
             # Adjust the width ratio as needed
             col1, col2 = st.columns([1, 5])
             
@@ -39,11 +39,11 @@ def display_placeholders():
                 st.image(DEFAULT_IMAGE, width=150, use_column_width=True)
 
             with col2:
-                st.markdown("### Name")
-                st.markdown("**Department:** Department")
-                st.markdown("**Contact:** Contact")
-                st.markdown("**Summary:** Summary")
-                st.markdown("[View Full Profile](https://www.example.com)", unsafe_allow_html=True)
+                st.markdown("### Loading...")
+                st.markdown("**Department:** Loading...")
+                st.markdown("**Contact:** Loading...")
+                st.markdown("**Summary:**")
+                stx.scrollableTextbox("Loading...", height=250, border=False, key=id)
 
             st.markdown("---")
 
@@ -54,6 +54,8 @@ def display_profiles(profiles: list[dict]):
     with search_results_placeholder.container():
         for profile in profiles:
             col1, col2 = st.columns([1, 5])
+
+            id = profile.get('url', 0).split('/')[-1]
             
             with col1:
                 if 'url' in profile and profile['url']:
@@ -74,7 +76,7 @@ def display_profiles(profiles: list[dict]):
                 st.markdown(f"**Department:** {profile.get('department', 'N/A')}")
                 st.markdown(f"**Contact:** {profile.get('contact', 'N/A')}")
                 st.markdown(f"**Summary:**")
-                stx.scrollableTextbox(profile.get('summary', 'N/A'), height=250, border=False)
+                stx.scrollableTextbox(profile.get('summary', 'N/A'), height=250, border=False, key=id)
                 
                 if 'url' in profile and profile['url']:
                     st.markdown(f"[View Full Profile]({profile['url']})", unsafe_allow_html=True)
