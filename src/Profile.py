@@ -11,10 +11,16 @@ class Profile:
         self.__data = self.__get_main()
     
     def __get_soup(self) -> BeautifulSoup:
+        """
+        Returns the BeautifulSoup object for the profile URL.
+        """
         response = requests.get(self.__url)
         return BeautifulSoup(response.text, 'html.parser')
     
     def __get_main(self) -> dict:
+        """
+        Extracts the main profile data from the page.
+        """
         soup = self.__soup
         profile_data = {
             'name': 'N/A',
@@ -78,6 +84,9 @@ class Profile:
 
     
     def get_data(self, *args) -> dict:
+        """
+        Returns the profile data as a dictionary. If arguments are passed, only the specified keys are returned.
+        """
         if args:
             data = {key: self.__data[key] for key in args}
             if len(data) == 1:

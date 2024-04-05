@@ -11,10 +11,16 @@ class Scraper:
             self.__urls = json.load(file)["urls"]
         
     def __get_soup(self, url: str) -> BeautifulSoup:
+        """
+        Returns a BeautifulSoup object from the given URL.
+        """
         response = requests.get(url)
         return BeautifulSoup(response.text, 'html.parser')
     
     def __get_links(self, soup: BeautifulSoup) -> list:
+        """
+        Returns a list of academic profile URLs from the given BeautifulSoup object.
+        """
         links = []
         for link in soup.find_all('a'):
             academic_url = link.get('href') or ''
@@ -25,6 +31,9 @@ class Scraper:
         return links
     
     def scrape(self) -> list:
+        """
+        Returns a list of academic profile URLs.
+        """
         profiles = []
         for url in self.__urls:
             soup = self.__get_soup(url)

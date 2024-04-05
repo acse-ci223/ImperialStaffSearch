@@ -18,7 +18,7 @@ def main():
             try:
                 profile = future.result()
                 print(f"Profile for {profile.get_data('name')} created")
-                db.insert_profile(profile.get_data())
+                db.insert_profile(profile)
             except Exception as exc:
                 print('%r generated an exception: %s' % (url, exc))
 
