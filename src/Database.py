@@ -1,6 +1,6 @@
 import sqlite3
 
-from Profile import Profile
+from .Profile import Profile
 
 class Database:
     def __init__(self, db_name):
@@ -14,6 +14,7 @@ class Database:
         """
         self.cur.execute('''CREATE TABLE IF NOT EXISTS profiles (
                             name TEXT PRIMARY KEY,
+                            url TEXT SECONDARY KEY,
                             department TEXT,
                             contact TEXT,
                             location TEXT,
@@ -33,12 +34,29 @@ class Database:
             The Profile object to insert.
         """
         profile_data:dict = profile.get_data()
-        self.cur.execute('''INSERT OR IGNORE INTO profiles (name, department, contact, location, links, summary, publications)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)''', 
-                         (profile_data['name'], profile_data['department'], profile_data['contact'], 
+        self.cur.execute('''INSERT OR IGNORE INTO profiles (name, url, department, contact, location, links, summary, publications)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', 
+                         (profile_data['name'], profile.url, profile_data['department'], profile_data['contact'], 
                           profile_data['location'], str(profile_data['links']), profile_data['summary'], 
                           str(profile_data['publications'])))
         self.conn.commit()
+    
+    def profile_exists(self, url: str):
+        """
+        Checks if a profile exists in the database.
+
+        Parameters
+        ----------
+        url : str
+            The URL of the profile to check.
+
+        Returns
+        -------
+        bool
+            True if the profile exists, False otherwise.
+        """
+        self.cur.execute('SELECT * FROM profiles WHERE url=?', (url,))
+        return self.cur.fetchone() is not None
 
     def close(self):
         """
