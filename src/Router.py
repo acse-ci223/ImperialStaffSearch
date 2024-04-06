@@ -6,7 +6,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from src.SearchEngine import SearchEngine
-from .Database import db
+from .Database import Database
 
 dotenv.load_dotenv(override=True)
 
@@ -26,8 +26,9 @@ async def get_profiles(req: ProfileRequest) -> dict:
     global db
     logging.info("POST /profiles")
     try:
+        db = Database("profiles.db")
         engine = SearchEngine(db=db, open_ai_key=OPENAI_API_KEY)
-        response = engine.search(req.query)
+        response = await engine.search(req.query)
         profiles = [profile.to_dict() for profile in response]
         return {"profiles": profiles, "code": 200}
     except Exception as e:

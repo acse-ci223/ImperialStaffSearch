@@ -1,4 +1,6 @@
+import asyncio
 import logging
+from typing import List
 
 import openai
 from openai import OpenAI
@@ -12,11 +14,12 @@ class SearchEngine:
         self.__openai_key = open_ai_key
         self.__client = OpenAI(api_key=self.__openai_key)
         self.__seed = 42
-        logging.info("Search Engine initialized")
+        logging.info("Async Search Engine initialized")
 
-    def __query_to_keywords(self, query: str) -> list[str]:
+    async def __query_to_keywords(self, query: str) -> list[str]:
         try:
-            response = self.__client.chat.completions.create(
+            loop = asyncio.get_running_loop()
+            response = await loop.run_in_executor(None, lambda: self.__client.chat.completions.create(
                 model="gpt-3.5-turbo-16k-0613",
                 seed=self.__seed,
                 temperature=1.2,
@@ -30,32 +33,34 @@ class SearchEngine:
                     {"role": "user",
                      "content": query}
                 ]
-            )
-            content = response.choices[0].message.content
-            keywords: list[str] = content.split(', ')
-            keywords = [keyword.strip() for keyword in keywords if keyword.strip()]
-            return keywords
-        except openai.OpenAIError as e:
+            ))
+            if response.choices and response.choices[0].message.content:
+                content = response.choices[0].message.content
+                keywords = [keyword.strip() for keyword in content.split(',') if keyword.strip()]
+                return keywords
+            else:
+                logging.error("Unexpected response format from OpenAI API.")
+                return []
+        except Exception as e:
             logging.error(f"Error with OpenAI API: {e}")
             return []
-    
-    def __rank_by_keywords(self, profiles: list[Profile], keywords: list[str]) -> list[Profile]:
-        ranked_list = []
+
+    async def __rank_by_keywords(self, profiles: List[Profile], keywords: List[str]) -> List[Profile]:
+        ranked_profiles = []
         for profile in profiles:
-            string: str = str(profile)
-            keyword_count = sum(keyword.lower() in string.lower() for keyword in keywords)
-            ranked_list.append((profile, keyword_count))
-        ranked_list.sort(key=lambda x: x[1], reverse=True)
-        ranked_list: list[Profile] = [x[0] for x in ranked_list]
-        return ranked_list
-    
-    def __simple_rank(self,  query: str, top_n: int = 10) -> list[Profile]:
-        keywords = self.__query_to_keywords(query)
+            profile_text = str(profile)
+            keyword_count = sum(keyword.lower() in profile_text.lower() for keyword in keywords)
+            ranked_profiles.append((profile, keyword_count))
+        ranked_profiles.sort(key=lambda x: x[1], reverse=True)
+        return [profile for profile, _ in ranked_profiles]
+
+    async def __simple_rank(self, query: str, top_n: int = 10) -> List[Profile]:
+        keywords = await self.__query_to_keywords(query)
         logging.info("Keywords: " + ", ".join(keywords))
-        profiles = self.__db.get_profiles()
-        logging.info("Profiles: " + str(len(profiles)))
-        ranked_list = self.__rank_by_keywords(profiles, keywords)
-        return ranked_list[:top_n]
+        profiles = await self.__db.get_profiles()
+        logging.info(f"Found {len(profiles)} profiles")
+        ranked_profiles = await self.__rank_by_keywords(profiles, keywords)
+        return ranked_profiles[:top_n]
     
     def __openai_rank(self, query: str, profiles: list[Profile]) -> list[Profile]:
         inst = """
@@ -95,10 +100,8 @@ class SearchEngine:
         except openai.OpenAIError as e:
             logging.error(f"Error with OpenAI API: {e}")
         return []
-
-    def search(self, query: str, top_n: int = 25, extensive: bool= False) -> list[Profile]:
-        logging.info("Searching for: " + str(query))
-        ranked_profiles: list[Profile] = self.__simple_rank(query, top_n)
-        if extensive:
-            ranked_profiles: list[Profile] = self.__openai_rank(query, ranked_profiles)
+    
+    async def search(self, query: str, top_n: int = 25) -> List[Profile]:
+        logging.info(f"Searching for: {query}")
+        ranked_profiles = await self.__simple_rank(query, top_n)
         return ranked_profiles

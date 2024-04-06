@@ -1,5 +1,5 @@
 import json
-import requests
+import httpx
 from bs4 import BeautifulSoup
 
 __all__ = ['Scraper']
@@ -10,11 +10,12 @@ class Scraper:
         with open('links.json', 'r') as file:
             self.__urls = json.load(file)["urls"]
         
-    def __get_soup(self, url: str) -> BeautifulSoup:
+    async def __get_soup(self, url: str) -> BeautifulSoup:
         """
         Returns a BeautifulSoup object from the given URL.
         """
-        response = requests.get(url)
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url)
         return BeautifulSoup(response.text, 'html.parser')
     
     def __get_links(self, soup: BeautifulSoup) -> list:
@@ -30,20 +31,26 @@ class Scraper:
                 links.append(academic_url)
         return links
     
-    def scrape(self) -> list:
+    async def scrape(self) -> list:
         """
         Returns a list of academic profile URLs.
         """
         profiles = []
-        for url in self.__urls:
-            soup = self.__get_soup(url)
-            links = self.__get_links(soup)
-            profiles.extend(links)
+        async with httpx.AsyncClient() as client:
+            for url in self.__urls:
+                soup = await self.__get_soup(url)
+                links = self.__get_links(soup)
+                profiles.extend(links)
         profiles.sort()
         return profiles
 
 
 if __name__ == "__main__":
-    scraper = Scraper()
-    profiles = scraper.scrape()
-    print(*profiles, sep='\n')
+    import asyncio
+    
+    async def main():
+        scraper = Scraper()
+        profiles = await scraper.scrape()
+        print(*profiles, sep='\n')
+
+    asyncio.run(main())

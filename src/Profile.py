@@ -1,10 +1,8 @@
 import logging
-
-import requests
+import httpx
 from bs4 import BeautifulSoup
 
 __all__ = ['Profile']
-
 
 class Profile:
     def __init__(self, url: str, **profile_data) -> None:
@@ -19,20 +17,32 @@ class Profile:
             'publications': [],
             'url': url
         }
+        self.__soup = None  # Will be set asynchronously
         if len(profile_data) == 0:
-            self.__soup = self.__get_soup()
-            self.__data = self.__get_main()
+            pass  # The actual scraping will happen asynchronously
         else:
             self.set_data(**profile_data)
     
-    def __get_soup(self) -> BeautifulSoup:
+    async def create(url: str) -> 'Profile':
+        """Asynchronously creates a Profile instance."""
+        profile = Profile(url)
+        await profile.fetch_and_process_profile()
+        return profile
+    
+    async def fetch_and_process_profile(self):
+        """Fetches the profile page and processes the profile data."""
+        self.__soup = await self.__get_soup()
+        self.__data = await self.__get_main()
+    
+    async def __get_soup(self) -> BeautifulSoup:
         """
-        Returns the BeautifulSoup object for the profile URL.
+        Asynchronously returns the BeautifulSoup object for the profile URL.
         """
-        response = requests.get(self.url)
+        async with httpx.AsyncClient() as client:
+            response = await client.get(self.url)
         return BeautifulSoup(response.text, 'html.parser')
     
-    def __get_main(self) -> dict:
+    async def __get_main(self) -> dict:
         soup = self.__soup
         profile_data = {
             'name': 'N/A',
@@ -110,9 +120,6 @@ class Profile:
         return profile_data
 
     def get_data(self, *args) -> dict:
-        """
-        Returns the profile data as a dictionary. If arguments are passed, only the specified keys are returned.
-        """
         if args:
             data = {key: self.__data[key] for key in args}
             if len(data) == 1:
@@ -121,19 +128,13 @@ class Profile:
         return self.__data
 
     def set_data(self, **kwargs) -> None:
-        """
-        Sets the profile data with the specified key-value pairs.
-        """
         for key, value in kwargs.items():
             if key in self.__data:
                 self.__data[key] = value
             else:
                 logging.error(f"Key '{key}' does not exist in profile data")
-        
+
     def to_dict(self) -> dict:
-        """
-        Returns the profile data as a dictionary.
-        """
         return self.__data    
 
     def __str__(self) -> str:
@@ -145,6 +146,6 @@ class Profile:
         profile_str += f"Summary: {self.__data['summary']}, "
         profile_str += f"Publications: {', '.join(self.__data['publications'])}"
         return profile_str
-    
+
     def __repr__(self) -> str:
         return self.__str__()
