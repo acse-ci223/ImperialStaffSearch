@@ -2,6 +2,7 @@ import asyncio
 import logging
 import concurrent.futures
 from enum import Enum
+import threading
 
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
@@ -22,12 +23,12 @@ class AppMode(str, Enum):
 scraper = Scraper()
 APP_MODE = AppMode.STOPPED
 
-async def scrape_and_update():
+async def scrape_and_update(delay: int = 10 * 60):
     while APP_MODE == AppMode.RUNNING:
         logging.info("Scraping profiles")
         urls = scraper.scrape()
         logging.info(f"Scraped {len(urls)} profiles")
-        with concurrent.futures.ThreadPoolExecutor() as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:
             urls = [url for url in urls]
             logging.info(f"Creating profiles for {len(urls)} urls")
             future_to_url = {executor.submit(Profile, url): url for url in urls}
@@ -41,11 +42,11 @@ async def scrape_and_update():
                         logging.info(f"Profile for {profile.get_data('name')} created")
                         db.insert_profile(profile)
                     else:
-                        logging.warning(f"Profile for {profile.get_data('name')} already exists")
+                        logging.info(f"Profile for {profile.get_data('name')} already exists")
                 except Exception as exc:
-                    logging.error(f"Profile for {url} failed to create")
+                    logging.warning(f"Profile for {url} failed to create")
                     logging.error(exc)
-        await asyncio.sleep(60)
+        await asyncio.sleep(delay)
 
 
 @asynccontextmanager
@@ -53,9 +54,16 @@ async def lifespan(app: FastAPI):
     logging.info("Starting up")
     global APP_MODE
     APP_MODE = AppMode.RUNNING
-    asyncio.create_task(scrape_and_update())
+    
+    # Create and start a new thread for scrape_and_update
+    scrape_thread = threading.Thread(target=lambda: asyncio.run(scrape_and_update()), daemon=True)
+    scrape_thread.start()
+    
     yield
+    
     APP_MODE = AppMode.STOPPED
+    logging.info("Waiting for the scraping thread to finish")
+    scrape_thread.join()  # Wait for the scrape_and_update thread to finish if it's still running
     logging.info("Shutting down")
 
 

@@ -4,7 +4,7 @@ from .Profile import Profile
 
 class Database:
     def __init__(self, db_name):
-        self.conn = sqlite3.connect(db_name)
+        self.conn = sqlite3.connect(db_name, check_same_thread=False)
         self.cur = self.conn.cursor()
         self.create_table()
 
