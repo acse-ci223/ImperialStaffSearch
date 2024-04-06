@@ -54,7 +54,7 @@ pip install -r requirements.txt
 To start the backend server, run:
 
 ```shell
-uvicorn backend:app --reload
+python backend.py
 ```
 
 To start the frontend server, run:
