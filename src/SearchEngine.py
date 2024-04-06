@@ -17,7 +17,7 @@ class SearchEngine:
     def __query_to_keywords(self, query: str) -> list[str]:
         try:
             response = self.__client.chat.completions.create(
-                model="gpt-4-0125-preview",
+                model="gpt-3.5-turbo-16k-0613",
                 seed=self.__seed,
                 messages=[
                     {"role": "system",
