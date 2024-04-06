@@ -19,9 +19,14 @@ class SearchEngine:
             response = self.__client.chat.completions.create(
                 model="gpt-3.5-turbo-16k-0613",
                 seed=self.__seed,
+                temperature=1.2,
+                max_tokens=50,
+                top_p=1.0,
+                frequency_penalty=0.2,
+                presence_penalty=0.2,
                 messages=[
                     {"role": "system",
-                     "content": "Understand the topic of the query and generate multiple relevant single-word keywords in a comma-separated list."},
+                     "content": "Understand the topic of the query and generate 50 relevant keywords in a comma-separated list."},
                     {"role": "user",
                      "content": query}
                 ]
