@@ -18,7 +18,10 @@ The project is structured as follows:
   - `WebUI.py`: Streamlit frontend interface.
 - `.env`: Environment variables for configuration.
 - `.gitignore`: Specifies intentionally untracked files to ignore.
+- `backend.Dockerfile`: Dockerfile for the backend server.
 - `backend.py`: Entry point for the FastAPI backend server.
+- `docker-compose.yml`: Docker Compose configuration for running the application.
+- `frontend.Dockerfile`: Dockerfile for the frontend server.
 - `frontend.py`: Entry point for the Streamlit frontend.
 - `LICENSE`: License information for the project.
 - `links.json`: Storage for scraped links.
@@ -28,7 +31,7 @@ The project is structured as follows:
 
 ## Installation
 
-Before running the application, ensure you have Python installed and set up on your system.
+Before running the application, ensure you have Python and Docker installed and set up on your system.
 
 1. Clone the repository:
 
@@ -36,33 +39,22 @@ Before running the application, ensure you have Python installed and set up on y
 git clone https://github.com/acse-ci223/ImperialStaffSearch
 ```
 
-2. Navigate to the project's root directory and set up a virtual environment:
+2. Navigate to the project's root directory and build the docker image:
 
 ```shell
-python -m venv .venv
-```
-
-3. Activate the virtual environment and install dependencies:
-
-```shell
-source .venv/bin/activate # On Windows use .venv\Scripts\activate
-pip install -r requirements.txt
+cd ImperialStaffSearch
+docker-compose build
 ```
 
 ## Usage
 
-To start the backend server, run:
+To start the frontend and backend server, run:
 
 ```shell
-python backend.py
+docker-compose up
 ```
 
-To start the frontend server, run:
-
-```shell
-streamlit run frontend.py
-```
-
+The frontend should be accessible at `http://localhost:8501`, and the backend at `http://localhost:8000`.
 
 ## Contributing
 Contributions to this project are welcome. Please fork the repository and submit a pull request with your proposed changes.

@@ -1,0 +1,16 @@
+# Ignore .env file containing sensitive environment variables
+.env
+
+# Ignore Git and version control
+.git
+.gitignore
+
+# Ignore Markdown documents
+*.md
+
+# Ignore all log files
+*.log
+
+# Ignore build output directories
+build/
+dist/

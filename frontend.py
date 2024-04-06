@@ -5,7 +5,7 @@ import requests
 import json
 
 # Set the endpoint
-ENDPOINT = "http://localhost:8000/profiles"
+ENDPOINT = "http://backend:8000/profiles"
 DEFAULT_IMAGE = "https://static.vecteezy.com/system/resources/previews/032/176/017/original/business-avatar-profile-black-icon-man-of-user-symbol-in-trendy-flat-style-isolated-on-male-profile-people-diverse-face-for-social-network-or-web-vector.jpg"
 
 # Function to send POST request to the FastAPI server

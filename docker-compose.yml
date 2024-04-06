@@ -1,0 +1,21 @@
+version: '3'
+services:
+  frontend:
+    build:
+        context: .
+        dockerfile: frontend.Dockerfile
+    image: frontend-service
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend
+    environment:
+      - BACKEND_URL=http://backend:8000
+
+  backend:
+    build:
+        context: .
+        dockerfile: backend.Dockerfile
+    image: backend-service
+    ports:
+      - "8000:8000"
