@@ -18,4 +18,4 @@ EXPOSE 8000
 ENV NAME World
 
 # Run frontend.py when the container launches
-CMD ["streamlit", "run", "frontend.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "frontend.py", "--server.port=8501", "--server.address=0.0.0.0", "--browser.gatherUsageStats=False", "--browser.serverAddress=localhost"]
