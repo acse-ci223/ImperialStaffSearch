@@ -9,13 +9,29 @@ ENDPOINT = "http://backend:8000/profiles"
 DEFAULT_IMAGE = "https://static.vecteezy.com/system/resources/previews/032/176/017/original/business-avatar-profile-black-icon-man-of-user-symbol-in-trendy-flat-style-isolated-on-male-profile-people-diverse-face-for-social-network-or-web-vector.jpg"
 
 # Function to send POST request to the FastAPI server
-def get_profiles(query):
-    response = requests.post(ENDPOINT, json={"query": query})
-    if response.status_code == 200:
-        return response.json()['profiles']
-    else:
-        st.error("Failed to retrieve profiles")
-        return []
+def get_profiles(query) -> list[dict] | None:
+    """Send a POST request to the FastAPI server to retrieve profiles based on the query.
+    
+    Parameters
+    ----------
+    query : str
+        The query to search for.
+        
+    Returns
+    -------
+    list[dict] | None
+        A list of profiles if the request is successful, otherwise None.
+    """
+    try:
+        response = requests.post(ENDPOINT, json={"query": query})
+        if response.status_code == 200:
+            return response.json()['profiles']
+        else:
+            st.error("Failed to retrieve profiles")
+            return None
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+        return None
 
 st.set_page_config(page_title="Staff Finder", page_icon="🎓")
 
@@ -32,6 +48,7 @@ search_results_placeholder = st.empty()
 
 # Function to display placeholders for profiles
 def display_placeholders():
+    """Display placeholders for profiles while the actual profiles are being fetched."""
     with search_results_placeholder.container():
         for id in range(3):
             # Adjust the width ratio as needed
@@ -51,6 +68,13 @@ def display_placeholders():
 
 # Function to display actual profiles
 def display_profiles(profiles: list[dict]):
+    """Display the actual profiles fetched from the FastAPI server.
+
+    Parameters
+    ----------
+    profiles : list[dict]
+        The list of profiles to display.
+    """
     search_results_placeholder.empty()
     
     with search_results_placeholder.container():
