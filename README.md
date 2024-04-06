@@ -33,6 +33,9 @@ The project is structured as follows:
 
 Before running the application, ensure you have Python and Docker installed and set up on your system.
 
+- [Python Installation Guide](https://www.python.org/downloads/)
+- [Docker Installation Guide](https://docs.docker.com/get-docker/)
+
 1. Clone the repository:
 
 ```shell
