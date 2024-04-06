@@ -6,7 +6,7 @@ services:
       dockerfile: frontend.Dockerfile
     image: frontend-service
     ports:
-      - "8501:8501"
+      - "80:80"
     depends_on:
       - backend
     environment:

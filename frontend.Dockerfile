@@ -11,8 +11,8 @@ COPY . /usr/src/app
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Make port available to the world outside this container
-EXPOSE 8501
+EXPOSE 80
 EXPOSE 8000
 
 # Run frontend.py when the container launches
-CMD ["streamlit", "run", "frontend.py", "--server.port=8501", "--server.address=0.0.0.0", "--browser.gatherUsageStats=False", "--browser.serverAddress=localhost"]
+CMD ["streamlit", "run", "frontend.py", "--server.port=80", "--server.address=0.0.0.0", "--browser.gatherUsageStats=False", "--browser.serverAddress=localhost"]
