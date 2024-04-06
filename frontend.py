@@ -15,6 +15,18 @@ logging.getLogger().handlers[0].setFormatter(CustomFormatter())
 
 st.set_page_config(page_title="Staff Finder", page_icon="🎓")
 
+st.markdown("""
+    <style>
+        .reportview-container {
+            margin-top: -2em;
+        }
+        #MainMenu {visibility: hidden;}
+        .stDeployButton {display:none;}
+        footer {visibility: hidden;}
+        #stDecoration {display:none;}
+    </style>
+""", unsafe_allow_html=True)
+
 # Streamlit app layout
 st.title("🎓Imperial College Staff Finder")
 
