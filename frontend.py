@@ -2,36 +2,16 @@ import io
 import streamlit as st
 import streamlit_scrollable_textbox as stx
 import requests
-import json
+import logging
+
+from src.LoggerFormatter import CustomFormatter
 
 # Set the endpoint
 ENDPOINT = "http://backend:8000/profiles"
 DEFAULT_IMAGE = "https://static.vecteezy.com/system/resources/previews/032/176/017/original/business-avatar-profile-black-icon-man-of-user-symbol-in-trendy-flat-style-isolated-on-male-profile-people-diverse-face-for-social-network-or-web-vector.jpg"
 
-# Function to send POST request to the FastAPI server
-def get_profiles(query) -> list[dict] | None:
-    """Send a POST request to the FastAPI server to retrieve profiles based on the query.
-    
-    Parameters
-    ----------
-    query : str
-        The query to search for.
-        
-    Returns
-    -------
-    list[dict] | None
-        A list of profiles if the request is successful, otherwise None.
-    """
-    try:
-        response = requests.post(ENDPOINT, json={"query": query})
-        if response.status_code == 200:
-            return response.json()['profiles']
-        else:
-            st.error("Failed to retrieve profiles")
-            return None
-    except Exception as e:
-        st.error(f"An error occurred: {e}")
-        return None
+logging.basicConfig(level=logging.INFO)
+logging.getLogger().handlers[0].setFormatter(CustomFormatter())
 
 st.set_page_config(page_title="Staff Finder", page_icon="🎓")
 
@@ -109,6 +89,31 @@ def display_profiles(profiles: list[dict]):
                 
             st.markdown("---")  # Horizontal line for separation
 
+# Function to send POST request to the FastAPI server
+def get_profiles(query) -> list[dict] | None:
+    """Send a POST request to the FastAPI server to retrieve profiles based on the query.
+    
+    Parameters
+    ----------
+    query : str
+        The query to search for.
+        
+    Returns
+    -------
+    list[dict] | None
+        A list of profiles if the request is successful, otherwise None.
+    """
+    try:
+        response = requests.post(ENDPOINT, json={"query": query})
+        if response.status_code == 200:
+            return response.json()['profiles']
+    except Exception as e:
+        logging.error(f"Failed to retrieve profiles: {e}")
+        pass
+
+    search_results_placeholder.empty()
+    return None
+
 # Search button
 if search_button:
     # Display placeholders initially
@@ -118,3 +123,5 @@ if search_button:
     profiles = get_profiles(query)
     if profiles:
         display_profiles(profiles)
+    else:
+        st.error("Failed to retrieve profiles. Please try again.")

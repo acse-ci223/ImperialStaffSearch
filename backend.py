@@ -12,6 +12,8 @@ from src.Database import db
 from src.LoggerFormatter import CustomFormatter
 from src.Router import Router
 
+import dotenv
+dotenv.load_dotenv(override=True)
 
 class AppMode(str, Enum):
     STOPPED = "STOPPED"
