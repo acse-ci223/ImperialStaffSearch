@@ -17,8 +17,10 @@ def get_profiles(query):
         st.error("Failed to retrieve profiles")
         return []
 
+st.set_page_config(page_title="Staff Finder", page_icon="🎓")
+
 # Streamlit app layout
-st.title("Staff Finder")
+st.title("🎓Imperial College Staff Finder")
 
 # Search bar
 query = st.text_input("Enter topics you're looking for:")
@@ -70,6 +72,9 @@ def display_profiles(profiles: list[dict]):
 
                 else:
                     st.image(DEFAULT_IMAGE, width=150, use_column_width=True)
+                
+                if 'url' in profile and profile['url']:
+                    st.markdown(f"[View Full Profile]({profile['url']})", unsafe_allow_html=True)
             
             with col2:
                 st.markdown(f"### {profile.get('name', 'N/A')}")
@@ -77,9 +82,6 @@ def display_profiles(profiles: list[dict]):
                 st.markdown(f"**Contact:** {profile.get('contact', 'N/A')}")
                 st.markdown(f"**Summary:**")
                 stx.scrollableTextbox(profile.get('summary', 'N/A'), height=250, border=False, key=id)
-                
-                if 'url' in profile and profile['url']:
-                    st.markdown(f"[View Full Profile]({profile['url']})", unsafe_allow_html=True)
                 
             st.markdown("---")  # Horizontal line for separation
 
