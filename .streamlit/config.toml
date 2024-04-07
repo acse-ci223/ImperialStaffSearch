@@ -14,8 +14,8 @@ magicEnabled = true
 
 [server]
 
-sslCertFile = '.streamlit/fullchain.pem'
-sslKeyFile = '.streamlit/privkey.pem'
+sslCertFile = 'fullchain.pem'
+sslKeyFile = 'privkey.pem'
 
 folderWatchBlacklist = ['/src']
 headless = true
