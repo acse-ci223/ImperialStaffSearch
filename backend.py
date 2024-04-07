@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import concurrent.futures
 from enum import Enum
 import threading
 
@@ -41,6 +40,7 @@ async def scrape_and_update(delay: int = 60):
             logging.info(f"Scraped {len(urls)} URLs")
             
             # Fetch existing URLs from the database asynchronously
+            db = Database("profiles.db")
             existing_urls = await db.fetch_existing_urls()
             logging.info(f"Found {len(existing_urls)} existing profiles")
             
@@ -55,7 +55,7 @@ async def scrape_and_update(delay: int = 60):
             logging.info("Finished scraping profiles")
             logging.info(f"Waiting {delay} seconds")
         except Exception as exc:
-            logging.error(exc)
+            logging.error(exc.with_traceback())
         await asyncio.sleep(delay)
 
 async def create_and_save_profile(url: str):
