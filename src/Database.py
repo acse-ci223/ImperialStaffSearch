@@ -85,7 +85,7 @@ class Database:
     
     async def fetch_existing_urls(self) -> list[str]:
         loop = asyncio.get_running_loop()
-        existing_urls = await loop.run_in_executor(None, db._sync_fetch_existing_urls)
+        existing_urls = await loop.run_in_executor(None, self._sync_fetch_existing_urls)
         return existing_urls
     
     def _sync_fetch_existing_urls(self) -> list[str]:
