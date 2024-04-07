@@ -5,6 +5,8 @@ services:
       context: .
       dockerfile: frontend.Dockerfile
     image: frontend-service
+    volumes:
+      - /etc/letsencrypt/live/iclstaff.com:/usr/src/app/.streamlit:ro
     ports:
       - "80:80"
     depends_on:
@@ -18,8 +20,6 @@ services:
     build:
         context: .
         dockerfile: backend.Dockerfile
-    volumes:
-      - /etc/letsencrypt/live/iclstaff.com:/usr/src/app/.streamlit:ro
     image: backend-service
     ports:
       - "8000:8000"
