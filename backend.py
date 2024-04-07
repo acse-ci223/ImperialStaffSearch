@@ -29,31 +29,33 @@ def start_async_loop():
     loop.run_until_complete(scrape_and_update())
     loop.close()
 
-async def scrape_and_update(delay: int = 10):
+async def scrape_and_update(delay: int = 60):
     scraper = Scraper()  # Assuming scraper is now an async class
     db = Database("profiles.db")
     await db.create_table()
     while APP_MODE == AppMode.RUNNING:
         logging.info("Scraping profiles")
-        
-        # Scrape URLs asynchronously
-        urls = await scraper.scrape()
-        logging.info(f"Scraped {len(urls)} URLs")
-        
-        # Fetch existing URLs from the database asynchronously
-        existing_urls = await db.fetch_existing_urls()
-        logging.info(f"Found {len(existing_urls)} existing profiles")
-        
-        tasks = []
-        for url in urls:
-            if url not in existing_urls:
-                logging.info(f"Creating task for {url}")
-                task = asyncio.create_task(create_and_save_profile(url))
-                tasks.append(task)
-        
-        await asyncio.gather(*tasks)
-        logging.info("Finished scraping profiles")
-        logging.info(f"Waiting {delay} seconds")
+        try:
+            # Scrape URLs asynchronously
+            urls = await scraper.scrape()
+            logging.info(f"Scraped {len(urls)} URLs")
+            
+            # Fetch existing URLs from the database asynchronously
+            existing_urls = await db.fetch_existing_urls()
+            logging.info(f"Found {len(existing_urls)} existing profiles")
+            
+            tasks = []
+            for url in urls:
+                if url not in existing_urls:
+                    logging.info(f"Creating task for {url}")
+                    task = asyncio.create_task(create_and_save_profile(url))
+                    tasks.append(task)
+            
+            await asyncio.gather(*tasks)
+            logging.info("Finished scraping profiles")
+            logging.info(f"Waiting {delay} seconds")
+        except Exception as exc:
+            logging.error(exc)
         await asyncio.sleep(delay)
 
 async def create_and_save_profile(url: str):
