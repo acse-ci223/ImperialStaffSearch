@@ -101,9 +101,6 @@ class Database:
         self.conn.close()
 
 
-db = Database('profiles.db')
-
-
 if __name__ == "__main__":
     db = Database('profiles.db')
     db.close()

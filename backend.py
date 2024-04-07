@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 
 from src.Scraper import Scraper
 from src.Profile import Profile
-from src.Database import db, Database
+from src.Database import Database
 from src.LoggerFormatter import CustomFormatter
 from src.Router import Router
 
@@ -65,6 +65,7 @@ async def create_and_save_profile(url: str):
         profile: Profile = await Profile.create(url)
         
         # Insert the profile into the database asynchronously
+        db = Database("profiles.db")
         await db.insert_profile(profile)  
         logging.info(f"Profile for {profile.get_data('name')} created")
     except Exception as exc:
