@@ -6,7 +6,7 @@ services:
       dockerfile: frontend.Dockerfile
     image: frontend-service
     volumes:
-      - /etc/letsencrypt/live/iclstaff.com:/usr/src/app/.streamlit:ro
+      - /etc/letsencrypt/live/iclstaff.com:/usr/src/app/certs:ro
     ports:
       - "80:80"
     depends_on:
