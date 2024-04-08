@@ -20,7 +20,7 @@ magicEnabled = true
 folderWatchBlacklist = ['/src']
 headless = true
 runOnSave = false
-port = 443
+port = 80
 enableCORS = true
 
 
@@ -28,4 +28,4 @@ enableCORS = true
 
 serverAddress = "127.0.0.1"
 gatherUsageStats = false
-serverPort = 443
+serverPort = 80
