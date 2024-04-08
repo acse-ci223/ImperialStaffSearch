@@ -19,7 +19,7 @@ RUN ["python", "src/GoogleAnalytics.py"]
 EXPOSE 80
 # EXPOSE 443
 
-RUN ssl_certs.sh
+RUN chmod +x /ssl_certs.sh
 
 # Run frontend.py when the container launches
 # CMD ["streamlit", "run", "frontend.py", "--browser.serverAddress=localhost"]
