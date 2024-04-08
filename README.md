@@ -18,7 +18,6 @@ Staff Finder is a web application designed to streamline the process of searchin
 
 Before running the application, ensure you have Python and Docker installed and set up on your system.
 
-- [Python Installation Guide](https://www.python.org/downloads/)
 - [Docker Installation Guide](https://docs.docker.com/get-docker/)
 
 1. Clone the repository:
@@ -42,7 +41,7 @@ To start the frontend and backend server, run:
 docker-compose up
 ```
 
-The frontend should be accessible at `http://localhost:8501`, and the backend at `http://localhost:8000`.
+The frontend should be accessible at `http://localhost:80`, and the backend at `http://localhost:8000`.
 
 ## Contributing
 Contributions to this project are welcome. Please fork the repository and submit a pull request with your proposed changes.
