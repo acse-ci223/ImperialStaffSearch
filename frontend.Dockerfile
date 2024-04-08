@@ -25,11 +25,10 @@ RUN apk update && \
     apk add --no-cache openssl && \
     openssl req -x509 -nodes -days 365 \
     -subj  "/C=CA/ST=QC/O=Company Inc/CN=iclstaff.com" \
-     -newkey rsa:2048 -keyout key.pem \
-     -out cert.pem;
+    -newkey rsa:2048 -keyout key.pem \
+    -out cert.pem;
 
-
-WORKDIR /usr/src/app
+FROM python:3.11-slim
 
 # Run frontend.py when the container launches
 # CMD ["streamlit", "run", "frontend.py", "--browser.serverAddress=localhost"]
