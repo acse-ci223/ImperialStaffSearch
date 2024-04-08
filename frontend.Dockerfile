@@ -7,7 +7,7 @@ WORKDIR /usr/src/app
 # Copy the current directory contents into the container at /usr/src/app
 COPY . /usr/src/app
 
-RUN ln -s /etc/letsencrypt/live/iclstaff.com /usr/src/app/certs
+RUN ln -s /etc/letsencrypt/ssl /usr/src/app/certs
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
