@@ -14,8 +14,8 @@ magicEnabled = true
 
 [server]
 
-# sslCertFile = 'fullchain.pem'
-# sslKeyFile = 'privkey.pem'
+sslCertFile = '/usr/src/app/certs/fullchain.pem'
+sslKeyFile = '/usr/src/app/certs/privkey.pem'
 
 folderWatchBlacklist = ['/src']
 headless = true
