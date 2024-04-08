@@ -2,8 +2,10 @@ import asyncio
 import logging
 from typing import List
 
-import openai
 from openai import OpenAI
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
 
 from src.Profile import Profile
 from src.Database import Database
@@ -14,6 +16,7 @@ class SearchEngine:
         self.__openai_key = open_ai_key
         self.__client = OpenAI(api_key=self.__openai_key)  # The OpenAI client for the engine instance
         self.__seed = 42
+        self.__vectorizer = TfidfVectorizer(stop_words='english')
         logging.info("Async Search Engine initialized")
 
     async def __query_to_keywords(self, query: str, recursive: int = 0, recursive_max: int= 3) -> list[str]:
@@ -92,7 +95,7 @@ class SearchEngine:
                 keyword_count = sum(keyword.lower() in profile_text.lower() for keyword in keywords)
                 ranked_profiles.append((profile, keyword_count))
             except Exception as e:
-                logging.error(f"Error while ranking profile: {profile.get_data("url")} - {e}")
+                logging.error(f"Error while ranking profile: {profile.get_data('url')} - {e}")
 
         # Sort the profiles by the number of keywords found in the profile text
         # Sorting in descending order on the second index of the tuple
@@ -127,6 +130,65 @@ class SearchEngine:
         # Return the top n profiles
         return ranked_profiles[:top_n]
     
+    async def __compute_tfidf_matrix(self, documents: List[str]):
+        """
+        Asynchronously compute the TF-IDF matrix for a list of documents.
+        """
+        loop = asyncio.get_event_loop()
+        tfidf_matrix = await loop.run_in_executor(None, lambda: self.__vectorizer.fit_transform(documents))
+        return tfidf_matrix
+
+    async def __compute_query_vector(self, query: str):
+        """
+        Asynchronously compute the TF-IDF vector for a search query.
+        """
+        loop = asyncio.get_event_loop()
+        query_vector = await loop.run_in_executor(None, lambda: self.__vectorizer.transform([query]))
+        return query_vector
+    
+    async def __tf_idf_rank(self, query: str, top_n: int = 25) -> List[Profile]:
+        """
+        This function ranks profiles based on the cosine similarity between the query and the profile text.
+
+        Parameters
+        ----------
+        query : str
+            The query to search for.
+        top_n : int
+            The number of profiles to return.
+        
+        Returns
+        -------
+        List[Profile]
+            A list of profiles ranked by the cosine similarity between the query and the profile text.
+        """
+        logging.info(f"Searching for: {query}")
+        profiles = await self.__db.get_profiles()
+
+        # Prepare documents for TF-IDF computation
+        documents = [str(profile) for profile in profiles]  # Assuming each profile has a 'summary' attribute
+
+        # Compute TF-IDF matrix for documents
+        tfidf_matrix = await self.__compute_tfidf_matrix(documents)
+
+        # Compute TF-IDF vector for query
+        query_vector = await self.__compute_query_vector(query)
+
+        # Compute cosine similarity between query vector and document matrix
+        cosine_similarities = await asyncio.get_event_loop().run_in_executor(
+            None, lambda: cosine_similarity(query_vector, tfidf_matrix).flatten()
+        )
+
+        # Get indices of profiles sorted by similarity
+        sorted_indices = np.argsort(cosine_similarities)[::-1]
+
+        # Select top N profiles
+        top_profile_indices = sorted_indices[:top_n]
+
+        # Return the top N profiles
+        top_profiles = [profiles[index] for index in top_profile_indices]
+        return top_profiles
+    
     async def search(self, query: str, top_n: int = 25) -> List[Profile]:
         """
         This function searches for profiles based on a query.
@@ -148,5 +210,6 @@ class SearchEngine:
         ranked_profiles = await self.__simple_rank(query, top_n)
 
         # Can add more complex ranking functions here
+        ranked_profiles = await self.__tf_idf_rank(query, top_n)
         
         return ranked_profiles
