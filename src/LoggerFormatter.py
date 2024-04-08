@@ -1,10 +1,11 @@
+# Internal imports
 import logging
 
 __all__ = ['CustomFormatter']
 
 
 class CustomFormatter(logging.Formatter):
-
+    # Define log colors
     grey = "\x1b[38;20m"
     yellow = "\x1b[33;20m"
     red = "\x1b[31;20m"
