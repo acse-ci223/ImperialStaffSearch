@@ -29,6 +29,6 @@ EXPOSE 80
 #     -out cert.pem;
 
 # Run frontend.py when the container launches
-# CMD ["streamlit", "run", "frontend.py", "--browser.serverAddress=localhost"]
+CMD ["streamlit", "run", "frontend.py", "--browser.serverAddress=localhost"]
 # streamlit run app.py --server.enableCORS=false --server.sslKeyFile /tmp/key.pem --server.sslCertFile /tmp/cert.pem
-CMD ["streamlit", "run", "frontend.py", "--server.enableCORS=false", "--server.sslKeyFile", "key.pem", "--server.sslCertFile", "cert.pem"]
+# CMD ["streamlit", "run", "frontend.py", "--server.enableCORS=false", "--server.sslKeyFile", "key.pem", "--server.sslCertFile", "cert.pem"]
