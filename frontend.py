@@ -37,8 +37,14 @@ st.title("🎓Imperial College Staff Finder")
 # Search bar
 query = st.text_input("Enter topics you're looking for:")
 
+col1, col2, col3 = st.columns([1,1,1])
 # Search button
-search_button = st.button("Search")
+with col1:
+    quick_search_button = st.button("Quick Search")
+with col2:
+    norm_search_button = st.button("Normal Search")
+with col3:
+    long_search_button = st.button("Long Search")
 
 # Define a placeholder for search results right after the search bar
 search_results_placeholder = st.empty()
@@ -117,7 +123,7 @@ def display_profiles(profiles: list[dict]):
             st.markdown("---")  # Horizontal line for separation
 
 # Function to send POST request to the FastAPI server
-def get_profiles(query) -> list[dict] | None:
+def get_profiles(query: str, method: str = "/norm") -> list[dict] | None:
     """Send a POST request to the FastAPI server to retrieve profiles based on the query.
     
     Parameters
@@ -131,7 +137,7 @@ def get_profiles(query) -> list[dict] | None:
         A list of profiles if the request is successful, otherwise None.
     """
     try:
-        response = requests.post(ENDPOINT, json={"query": query})   # Send POST request
+        response = requests.post(ENDPOINT+method, json={"query": query})   # Send POST request
         if response.status_code == 200:                             # Check if the request is successful
             return response.json()['profiles']
 
@@ -143,12 +149,20 @@ def get_profiles(query) -> list[dict] | None:
     return None
 
 # Search button
-if search_button:
+if quick_search_button or norm_search_button or long_search_button:
     # Display placeholders initially
     display_placeholders()
+
+    # Determine the search method based on the button clicked
+    if quick_search_button:
+        method = "/quick"
+    elif norm_search_button:
+        method = "/norm"
+    elif long_search_button:
+        method = "/long"
     
     # Fetch and display actual profiles
-    profiles = get_profiles(query)
+    profiles = get_profiles(query, method=method)
     if profiles:
         display_profiles(profiles)
     else:

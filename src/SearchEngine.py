@@ -288,6 +288,66 @@ class SearchEngine:
         )
         return ranked_profiles[:top_n]
     
+    async def long_search(self, query: str, top_n: int = 10) -> List[Profile]:
+        """
+        This function searches thoroughly for profiles based on a query.
+
+        Parameters
+        ----------
+        query : str
+            The query to search for.
+        top_n : int
+            The number of profiles to return.
+        
+        Returns
+        -------
+        List[Profile]
+            A list of profiles ranked by the number of keywords found in the profile text.
+        """
+        logging.info(f"Long Search for: {query}")
+
+        # Parallel execution of ranking methods
+        simple_ranked = await self.__simple_rank(query, top_n)
+        tfidf_ranked = await self.__tf_idf_rank(query, top_n)
+        bert_ranked = await self.__bert_rank(query, top_n)
+
+        # Combine results from all ranking methods
+        combined_results = simple_ranked + tfidf_ranked + bert_ranked
+
+        # Rank combined results based on frequency and order of appearance
+        ranked_profiles = await self.__rank_combined_results(combined_results, top_n)
+
+        return ranked_profiles
+    
+    async def quick_search(self, query: str, top_n: int = 10) -> List[Profile]:
+        """
+        This function searches for profiles based on a query.
+
+        Parameters
+        ----------
+        query : str
+            The query to search for.
+        top_n : int
+            The number of profiles to return.
+        
+        Returns
+        -------
+        List[Profile]
+            A list of profiles ranked by the number of keywords found in the profile text.
+        """
+        logging.info(f"Quick Search for: {query}")
+
+        # Parallel execution of ranking methods
+        simple_ranked = await self.__simple_rank(query, top_n)
+
+        # Combine results from all ranking methods
+        combined_results = simple_ranked
+
+        # Rank combined results based on frequency and order of appearance
+        ranked_profiles = await self.__rank_combined_results(combined_results, top_n)
+
+        return ranked_profiles
+    
     async def search(self, query: str, top_n: int = 10) -> List[Profile]:
         """
         This function searches for profiles based on a query.
@@ -304,15 +364,14 @@ class SearchEngine:
         List[Profile]
             A list of profiles ranked by the number of keywords found in the profile text.
         """
-        logging.info(f"Searching for: {query}")
+        logging.info(f"Normal Search for: {query}")
 
         # Parallel execution of ranking methods
         simple_ranked = await self.__simple_rank(query, top_n)
         tfidf_ranked = await self.__tf_idf_rank(query, top_n)
-        bert_ranked = await self.__bert_rank(query, top_n)
 
         # Combine results from all ranking methods
-        combined_results = simple_ranked + tfidf_ranked + bert_ranked
+        combined_results = simple_ranked + tfidf_ranked
 
         # Rank combined results based on frequency and order of appearance
         ranked_profiles = await self.__rank_combined_results(combined_results, top_n)
