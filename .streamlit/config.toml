@@ -24,8 +24,8 @@ port = 443
 enableCORS = true
 
 
-# [browser]
+[browser]
 
-# serverAddress = "127.0.0.1"
-# gatherUsageStats = false
-# serverPort = 80
+serverAddress = "iclstaff.com"
+gatherUsageStats = false
+serverPort = 80
