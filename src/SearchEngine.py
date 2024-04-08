@@ -371,7 +371,7 @@ class SearchEngine:
         tfidf_ranked = await self.__tf_idf_rank(query, top_n)
 
         # Combine results from all ranking methods
-        combined_results = simple_ranked + tfidf_ranked
+        combined_results = simple_ranked + tfidf_ranked + tfidf_ranked
 
         # Rank combined results based on frequency and order of appearance
         ranked_profiles = await self.__rank_combined_results(combined_results, top_n)
