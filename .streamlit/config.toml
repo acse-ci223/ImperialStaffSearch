@@ -21,7 +21,7 @@ folderWatchBlacklist = ['/src']
 headless = true
 runOnSave = false
 port = 443
-enableCORS = false
+enableCORS = true
 
 
 # [browser]
