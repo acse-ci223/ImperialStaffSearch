@@ -7,8 +7,12 @@ __all__ = ['Scraper']
 
 class Scraper:
     def __init__(self) -> None:
-        with open('links.json', 'r') as file:
-            self.__urls = json.load(file)["urls"]
+        try:
+            with open('links.json', 'r') as file:
+                self.__urls = json.load(file)["urls"]
+
+        except FileNotFoundError:
+            self.__urls = []
         
     async def __get_soup(self, url: str) -> BeautifulSoup:
         """
@@ -24,11 +28,18 @@ class Scraper:
         """
         links = []
         for link in soup.find_all('a'):
-            academic_url = link.get('href') or ''
-            academic_url = academic_url.strip()
-            if 'www.imperial.ac.uk/people/' in academic_url:
-                academic_url = "https://www"+"".join(academic_url.split('www')[1:])
-                links.append(academic_url)
+            try:
+                # Get the URL from the 'href' attribute
+                academic_url = link.get('href') or ''
+                academic_url = academic_url.strip()
+                if 'www.imperial.ac.uk/people/' in academic_url:
+                    # Fix the URL if it doesn't start with 'https://www'
+                    academic_url = "https://www"+"".join(academic_url.split('www')[1:])
+                    links.append(academic_url)
+
+            except Exception:
+                pass
+
         return links
     
     async def scrape(self) -> list:
@@ -38,9 +49,15 @@ class Scraper:
         profiles = []
         async with httpx.AsyncClient() as client:
             for url in self.__urls:
-                soup = await self.__get_soup(url)
-                links = self.__get_links(soup)
-                profiles.extend(links)
+                try:
+                    # Get the BeautifulSoup object from the URL
+                    soup = await self.__get_soup(url)
+                    links = self.__get_links(soup)
+                    profiles.extend(links)
+                
+                except Exception:
+                    pass
+
         profiles.sort()
         return profiles
 
