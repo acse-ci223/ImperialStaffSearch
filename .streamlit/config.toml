@@ -28,4 +28,4 @@ enableCORS = true
 
 serverAddress = "iclstaff.com"
 gatherUsageStats = false
-serverPort = 80
+serverPort = 443
