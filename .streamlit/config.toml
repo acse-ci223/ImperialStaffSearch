@@ -29,8 +29,8 @@ enableCORS = false
 headless = true
 port = 80
 enableXsrfProtection = true
-certfile = /usr/src/app/certs/fullchain.pem
-keyfile = /usr/src/app/certs/privkey.pem
+certfile = "/usr/src/app/certs/fullchain.pem"
+keyfile = "/usr/src/app/certs/privkey.pem"
 
 [browser]
 
