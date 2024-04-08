@@ -45,7 +45,7 @@ async def get_profiles(req: ProfileRequest) -> dict:
         db = Database()
         # Create a search engine instance
         engine = SearchEngine(db=db, open_ai_key=OPENAI_API_KEY)
-        response = await engine.long_search(req.query)
+        response = await engine.long_search(req.query, 10)
         # Convert the profiles to dictionaries to become serialized
         profiles = [profile.to_dict() for profile in response]
         return {"profiles": profiles, "code": 200}
@@ -74,7 +74,7 @@ async def get_profiles(req: ProfileRequest) -> dict:
         db = Database()
         # Create a search engine instance
         engine = SearchEngine(db=db, open_ai_key=OPENAI_API_KEY)
-        response = await engine.quick_search(req.query)
+        response = await engine.quick_search(req.query, 30)
         # Convert the profiles to dictionaries to become serialized
         profiles = [profile.to_dict() for profile in response]
         return {"profiles": profiles, "code": 200}
@@ -103,7 +103,7 @@ async def get_profiles(req: ProfileRequest) -> dict:
         db = Database()
         # Create a search engine instance
         engine = SearchEngine(db=db, open_ai_key=OPENAI_API_KEY)
-        response = await engine.search(req.query)
+        response = await engine.search(req.query, 20)
         # Convert the profiles to dictionaries to become serialized
         profiles = [profile.to_dict() for profile in response]
         return {"profiles": profiles, "code": 200}
