@@ -6,7 +6,7 @@ __all__ = ['Profile']
 
 class Profile:
     def __init__(self, url: str, **profile_data) -> None:
-        self.url = url
+        self.url = url  # Profile URL
         self.__data = {
             'name': 'N/A',
             'department': 'N/A',
@@ -16,23 +16,24 @@ class Profile:
             'summary': 'N/A',
             'publications': [],
             'url': url
-        }
+        } # Profile data
         self.__soup = None  # Will be set asynchronously
         if len(profile_data) == 0:
             pass  # The actual scraping will happen asynchronously
         else:
+            # Set the profile data if provided in the constructor
             self.set_data(**profile_data)
     
     async def create(url: str) -> 'Profile':
         """Asynchronously creates a Profile instance."""
-        profile = Profile(url)
+        profile = Profile(url)  # Create an instance
         await profile.fetch_and_process_profile()
         return profile
     
     async def fetch_and_process_profile(self):
         """Fetches the profile page and processes the profile data."""
-        self.__soup = await self.__get_soup()
-        self.__data = await self.__get_main()
+        self.__soup = await self.__get_soup()  # Get the BeautifulSoup object
+        self.__data = await self.__get_main()  # Get the profile data
     
     async def __get_soup(self) -> BeautifulSoup:
         """
@@ -44,6 +45,7 @@ class Profile:
     
     async def __get_main(self) -> dict:
         soup = self.__soup
+        # Set default values
         profile_data = {
             'name': 'N/A',
             'department': 'N/A',
@@ -119,15 +121,36 @@ class Profile:
 
         return profile_data
 
-    def get_data(self, *args) -> dict:
+    def get_data(self, *args: str) -> dict:
+        """
+        Returns the profile data for the specified keys.
+        
+        Parameters
+        ----------
+        *args : str
+            The keys for which the data is to be retrieved.
+            
+        Returns
+        -------
+        dict
+            The profile data for the specified keys.
+        """
         if args:
-            data = {key: self.__data[key] for key in args}
+            data = {key: self.__data[key] for key in args}  # Get the data for the specified keys
             if len(data) == 1:
                 return data.popitem()[1]
             return data
         return self.__data
 
-    def set_data(self, **kwargs) -> None:
+    def set_data(self, **kwargs: dict) -> None:
+        """
+        Sets the profile data for the specified keys.
+
+        Parameters
+        ----------
+        **kwargs : dict
+            The keys and values to be set.
+        """
         for key, value in kwargs.items():
             if key in self.__data:
                 self.__data[key] = value
@@ -135,9 +158,34 @@ class Profile:
                 logging.error(f"Key '{key}' does not exist in profile data")
 
     def to_dict(self) -> dict:
+        """
+        Returns the profile data as a dictionary.
+
+        Returns
+        -------
+        dict
+            The profile data as a dictionary.
+        """
         return self.__data    
 
     def __str__(self) -> str:
+        """
+        Returns the profile data as a string.
+
+        Adds the following fields:
+        - Name
+        - Department
+        - Contact
+        - Location
+        - Links
+        - Summary
+        - Publications
+        
+        Returns
+        -------
+        str
+            The profile data as a string.
+        """
         profile_str: str = f"Name: {self.__data['name']}, "
         profile_str += f"Department: {self.__data['department']}, "
         profile_str += f"Contact: {self.__data['contact']}, "
