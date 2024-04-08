@@ -6,7 +6,7 @@ services:
       dockerfile: frontend.Dockerfile
     image: frontend-service
     volumes:
-      - /etc/letsencrypt/ssl:/usr/src/app/certs:ro
+      - /etc/letsencrypt/ssl:/usr/src/app/certs
     ports:
       - "80:80"
       - "443:443"
