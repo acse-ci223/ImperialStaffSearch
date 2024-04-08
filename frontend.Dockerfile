@@ -24,4 +24,4 @@ RUN chmod +x ssl_certs.sh
 
 # Run frontend.py when the container launches
 # CMD ["streamlit", "run", "frontend.py", "--browser.serverAddress=localhost"]
-CMD ["streamlit", "run", "frontend.py", "--server.enableCORS=false", "--server.sslKeyFile", "key.pem", "--server.sslCertFile", "cert.pem"]
+CMD ["streamlit", "run", "frontend.py", "--server.enableCORS=false", "--server.sslKeyFile", "certs/key.pem", "--server.sslCertFile", "certs/cert.pem"]

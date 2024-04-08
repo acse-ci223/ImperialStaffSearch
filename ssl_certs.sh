@@ -19,9 +19,9 @@ EMAIL_ADDRESS="ci223@ic.ac.uk"
 
 ## apache or nginx
 SERVER_KEY="key.pem"
-SERVER_KEY_PATH="/etc/ssl/private"
+SERVER_KEY_PATH="/usr/src/app/certs"
 SERVER_CRT="cert.pem"
-SERVER_CRT_PATH="/etc/ssl/certs"
+SERVER_CRT_PATH="/usr/src/app/certs"
 
 OPENSSL_SUBJ_OPTIONS="
 Country Name (2 letter code) [AU]:$COUNTRY_NAME
@@ -52,8 +52,8 @@ then
         -out $SERVER_CRT
     
     ## uncomment: move to correct location
-    #mv -f $SERVER_KEY $SERVER_KEY_PATH/$SERVER_KEY
-    #mv -f $SERVER_CRT $SERVER_CRT_PATH/$SERVER_CRT
+    mv -f $SERVER_KEY $SERVER_KEY_PATH/$SERVER_KEY
+    mv -f $SERVER_CRT $SERVER_CRT_PATH/$SERVER_CRT
 else
     echo "openssl is not installed"
     exit 1
