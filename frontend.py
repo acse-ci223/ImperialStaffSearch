@@ -3,6 +3,7 @@ import streamlit as st
 import streamlit_scrollable_textbox as stx
 import requests
 import logging
+import random
 
 from src.LoggerFormatter import CustomFormatter
 
@@ -76,10 +77,15 @@ def display_profiles(profiles: list[dict]):
     
     with search_results_placeholder.container():
         # Display each profile. They have the same structure as the placeholder
+        ids: list[str] = []
         for profile in profiles:
             col1, col2 = st.columns([1, 5])
 
-            id = profile.get('url', 0).split('/')[-1]
+            id: str = profile.get('url', None)
+            id = id.split("/")[-1] if id else random.randint(0, 1000)  # Generate a random ID if the URL is not available
+            if id in ids:
+                id = f"{id}_{random.randint(0, 1000)}"
+            ids.append(id)
             
             with col1:
                 if 'url' in profile and profile['url']:

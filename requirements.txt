@@ -8,3 +8,6 @@ fastapi
 openai
 python-dotenv
 scikit-learn
+scipy
+transformers
+torch

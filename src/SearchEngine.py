@@ -6,6 +6,9 @@ from openai import OpenAI
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+import torch
+from transformers import AutoTokenizer, AutoModel
+from scipy.spatial.distance import cosine as cosine_distance
 
 from src.Profile import Profile
 from src.Database import Database
@@ -16,7 +19,13 @@ class SearchEngine:
         self.__openai_key = open_ai_key
         self.__client = OpenAI(api_key=self.__openai_key)  # The OpenAI client for the engine instance
         self.__seed = 42
+        # Initialize the TF-IDF vectorizer
         self.__vectorizer = TfidfVectorizer(stop_words='english')
+        # Initialize the BERT model and tokenizer
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.tokenizer = AutoTokenizer.from_pretrained('sentence-transformers/all-MiniLM-L6-v2')
+        self.model = AutoModel.from_pretrained('sentence-transformers/all-MiniLM-L6-v2').to(self.device)
+
         logging.info("Async Search Engine initialized")
 
     async def __query_to_keywords(self, query: str, recursive: int = 0, recursive_max: int= 3) -> list[str]:
@@ -119,12 +128,12 @@ class SearchEngine:
         List[Profile]
             A list of profiles ranked by the number of keywords found in the profile text.
         """
+        logging.info(f"Simple Ranking for: {query}")
         # Get the keywords from the query
         keywords = await self.__query_to_keywords(query)
         logging.info("Keywords: " + ", ".join(keywords))
         # Get the profiles from the database
         profiles = await self.__db.get_profiles()
-        logging.info(f"Found {len(profiles)} profiles")
         # Rank the profiles by the keywords
         ranked_profiles = await self.__rank_by_keywords(profiles, keywords)
         # Return the top n profiles
@@ -162,7 +171,7 @@ class SearchEngine:
         List[Profile]
             A list of profiles ranked by the cosine similarity between the query and the profile text.
         """
-        logging.info(f"Searching for: {query}")
+        logging.info(f"TF-IDF Ranking for: {query}")
         profiles = await self.__db.get_profiles()
 
         # Prepare documents for TF-IDF computation
@@ -189,6 +198,56 @@ class SearchEngine:
         top_profiles = [profiles[index] for index in top_profile_indices]
         return top_profiles
     
+    async def __embed_text(self, text: str) -> torch.Tensor:
+        """
+        Asynchronously generate embeddings for a given piece of text.
+        """
+        loop = asyncio.get_event_loop()
+        encoded_input = self.tokenizer(text, padding=True, truncation=True, max_length=128, return_tensors='pt').to(self.device)
+        with torch.no_grad():
+            model_output = await loop.run_in_executor(None, lambda: self.model(**encoded_input))
+        embeddings = model_output.last_hidden_state.mean(dim=1)
+        return embeddings
+
+    async def __calculate_similarity(self, query_embedding: np.ndarray, profile_embedding: np.ndarray) -> float:
+        try:
+            cosine_sim = 1 - cosine_distance(query_embedding, profile_embedding)  # Use NumPy arrays for calculation
+            return cosine_sim
+        except Exception as e:
+            logging.error(f"Error while calculating similarity: {e}")
+            return -1
+    
+    async def __bert_rank(self, query: str, top_n: int = 25) -> List[Profile]:
+        logging.info(f"BERT Ranking for: {query}")
+
+        # Get all profiles from the database
+        profiles = await self.__db.get_profiles()
+        
+        # Embed the query
+        query_embedding = await self.__embed_text(query)
+        query_embedding = query_embedding.detach().cpu().numpy().flatten()  # Ensure detachment, move to CPU, and flatten
+
+        # Create tasks for embedding all profile summaries
+        profile_embedding_tasks = [self.__embed_text(profile.get_data("summary")) for profile in profiles]
+        profile_embeddings = await asyncio.gather(*profile_embedding_tasks)
+
+        # Detach and move embeddings to CPU, then flatten
+        profile_embeddings = [embedding.detach().cpu().numpy().flatten() for embedding in profile_embeddings]
+
+        # Calculate similarity scores in parallel
+        similarity_scores_tasks = [self.__calculate_similarity(query_embedding, profile_embedding) for profile_embedding in profile_embeddings]
+        similarity_scores = await asyncio.gather(*similarity_scores_tasks)
+
+        # Associate profiles with their similarity scores
+        profile_similarity_scores = list(zip(profiles, similarity_scores))
+
+        # Sort profiles by similarity score
+        profile_similarity_scores.sort(key=lambda x: x[1], reverse=True)
+
+        # Select top N profiles
+        top_profiles = [profile for profile, _ in profile_similarity_scores[:top_n]]
+        return top_profiles
+
     async def search(self, query: str, top_n: int = 25) -> List[Profile]:
         """
         This function searches for profiles based on a query.
@@ -206,10 +265,15 @@ class SearchEngine:
             A list of profiles ranked by the number of keywords found in the profile text.
         """
         logging.info(f"Searching for: {query}")
-        # Simple ranking based on keywords
+        # Simple ranking based on keywords - OpenAI
         ranked_profiles = await self.__simple_rank(query, top_n)
 
-        # Can add more complex ranking functions here
+        # TF-IDF ranking
         ranked_profiles = await self.__tf_idf_rank(query, top_n)
+
+        # BERT ranking
+        ranked_profiles = await self.__bert_rank(query, top_n)
+
+        # Can add more complex ranking functions here
         
         return ranked_profiles
