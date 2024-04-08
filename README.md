@@ -6,30 +6,13 @@ Website running [here](http://iclstaff.com)
 
 Staff Finder is a web application designed to streamline the process of searching for academic staff profiles based on research interests, departmental affiliations, or other keywords. This project consists of a backend written with FastAPI and a frontend built with Streamlit.
 
-## Project Structure
+## Features
 
-The project is structured as follows:
-
-- `src/`: The main source directory containing the Python modules.
-  - `Database.py`: Module for database interactions.
-  - `LoggerFormatter.py`: Custom logging formatter.
-  - `Profile.py`: Profile data structure.
-  - `Router.py`: FastAPI router handling the API routes.
-  - `Scraper.py`: Web scraper for extracting staff information.
-  - `SearchEngine.py`: Search functionality.
-  - `WebUI.py`: Streamlit frontend interface.
-- `.env`: Environment variables for configuration.
-- `.gitignore`: Specifies intentionally untracked files to ignore.
-- `backend.Dockerfile`: Dockerfile for the backend server.
-- `backend.py`: Entry point for the FastAPI backend server.
-- `docker-compose.yml`: Docker Compose configuration for running the application.
-- `frontend.Dockerfile`: Dockerfile for the frontend server.
-- `frontend.py`: Entry point for the Streamlit frontend.
-- `LICENSE`: License information for the project.
-- `links.json`: Storage for scraped links.
-- `profiles.db`: SQLite database for storing profile data.
-- `README.md`: The file you are reading, containing documentation for the project.
-- `requirements.txt`: List of dependencies to be installed.
+- **Scraping** - The backend scrapes the Imperial College London website to retrieve staff profiles and their associated information.
+- **Search** - Users can search for staff profiles based on keywords, research interests, or departmental affiliations.
+  - **OpenAI Rank** - Generation of keywords to match relevancy in all profiles.
+  - **TF-IDF Rank** - Using the Term Frequency-Inverse Document Frequency algorithm to rank search results.
+  - **NLP Rank** - Using BERT embeddings to rank search results.
 
 ## Installation
 
