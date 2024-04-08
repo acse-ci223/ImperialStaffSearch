@@ -13,6 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the current directory contents into the container at /usr/src/app
 COPY . /usr/src/app
 
+RUN ["python", "src/GoogleAnalytics.py"]
+
 # Make port available to the world outside this container
 EXPOSE 80
 EXPOSE 8000
