@@ -16,7 +16,7 @@ COPY . /usr/src/app
 RUN ["python", "src/GoogleAnalytics.py"]
 
 # Make port available to the world outside this container
-EXPOSE 80
+# EXPOSE 80
 EXPOSE 443
 
 # Run frontend.py when the container launches
