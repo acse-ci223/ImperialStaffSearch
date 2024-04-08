@@ -19,7 +19,14 @@ RUN ["python", "src/GoogleAnalytics.py"]
 EXPOSE 80
 # EXPOSE 443
 
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout key.pem -out cert.pem
+FROM nginx:1.19.1-alpine
+
+RUN apk update && \
+    apk add --no-cache openssl && \
+    openssl req -x509 -nodes -days 365 \
+    -subj  "/C=CA/ST=QC/O=Company Inc/CN=iclstaff.com" \
+     -newkey rsa:2048 -keyout key.pem \
+     -out cert.pem;
 
 # Run frontend.py when the container launches
 # CMD ["streamlit", "run", "frontend.py", "--browser.serverAddress=localhost"]
