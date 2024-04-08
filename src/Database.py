@@ -118,7 +118,15 @@ class Database:
         """Fetches existing URLs from the database."""
         with sqlite3.connect(self.db_name) as conn:
             cur = conn.cursor()
-            cur.execute('SELECT url FROM profiles')
+            query = '''
+            SELECT url FROM profiles
+            WHERE name != 'N/A' AND
+                department != 'N/A' AND
+                contact != 'N/A' AND
+                location != 'N/A' AND
+                summary != 'N/A'
+            '''
+            cur.execute(query)
             return [row[0] for row in cur.fetchall()]  # Return a list of URLs. row[0] is the URL from cur.fetchall()
 
 
