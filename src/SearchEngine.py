@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from typing import List
+from collections import Counter
 
 from openai import OpenAI
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -25,7 +26,6 @@ class SearchEngine:
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.tokenizer = AutoTokenizer.from_pretrained('sentence-transformers/all-MiniLM-L6-v2')
         self.model = AutoModel.from_pretrained('sentence-transformers/all-MiniLM-L6-v2').to(self.device)
-
         logging.info("Async Search Engine initialized")
 
     async def __query_to_keywords(self, query: str, recursive: int = 0, recursive_max: int= 3) -> list[str]:
@@ -131,7 +131,6 @@ class SearchEngine:
         logging.info(f"Simple Ranking for: {query}")
         # Get the keywords from the query
         keywords = await self.__query_to_keywords(query)
-        logging.info("Keywords: " + ", ".join(keywords))
         # Get the profiles from the database
         profiles = await self.__db.get_profiles()
         # Rank the profiles by the keywords
@@ -218,6 +217,21 @@ class SearchEngine:
             return -1
     
     async def __bert_rank(self, query: str, top_n: int = 25) -> List[Profile]:
+        """
+        This function ranks profiles based on the cosine similarity between the query and the profile text using BERT embeddings.
+
+        Parameters
+        ----------
+        query : str
+            The query to search for.
+        top_n : int
+            The number of profiles to return.
+
+        Returns
+        -------
+        List[Profile]
+            A list of profiles ranked by the cosine similarity between the query and the profile text using BERT embeddings.
+        """
         logging.info(f"BERT Ranking for: {query}")
 
         # Get all profiles from the database
@@ -228,7 +242,7 @@ class SearchEngine:
         query_embedding = query_embedding.detach().cpu().numpy().flatten()  # Ensure detachment, move to CPU, and flatten
 
         # Create tasks for embedding all profile summaries
-        profile_embedding_tasks = [self.__embed_text(profile.get_data("summary")) for profile in profiles]
+        profile_embedding_tasks = [self.__embed_text(str(profile)) for profile in profiles]
         profile_embeddings = await asyncio.gather(*profile_embedding_tasks)
 
         # Detach and move embeddings to CPU, then flatten
@@ -247,8 +261,34 @@ class SearchEngine:
         # Select top N profiles
         top_profiles = [profile for profile, _ in profile_similarity_scores[:top_n]]
         return top_profiles
+    
+    
+    async def __rank_combined_results(self, combined_results: List[Profile], top_n: int) -> List[Profile]:
+        """
+        This function ranks the combined results based on frequency and order of appearance.
 
-    async def search(self, query: str, top_n: int = 25) -> List[Profile]:
+        Parameters
+        ----------
+        combined_results : List[Profile]
+            The combined results from all ranking methods.
+        top_n : int
+            The number of profiles to return.
+
+        Returns
+        -------
+        List[Profile]
+            A list of profiles ranked by frequency and order of appearance.
+        """
+        profile_frequency = Counter(combined_results)
+        
+        # Sort profiles by frequency and then by earliest appearance
+        ranked_profiles = sorted(
+            profile_frequency.keys(), 
+            key=lambda profile: (-profile_frequency[profile], combined_results.index(profile))
+        )
+        return ranked_profiles[:top_n]
+    
+    async def search(self, query: str, top_n: int = 10) -> List[Profile]:
         """
         This function searches for profiles based on a query.
 
@@ -265,15 +305,16 @@ class SearchEngine:
             A list of profiles ranked by the number of keywords found in the profile text.
         """
         logging.info(f"Searching for: {query}")
-        # Simple ranking based on keywords - OpenAI
-        ranked_profiles = await self.__simple_rank(query, top_n)
 
-        # TF-IDF ranking
-        ranked_profiles = await self.__tf_idf_rank(query, top_n)
+        # Parallel execution of ranking methods
+        simple_ranked = await self.__simple_rank(query, top_n)
+        tfidf_ranked = await self.__tf_idf_rank(query, top_n)
+        bert_ranked = await self.__bert_rank(query, top_n)
 
-        # BERT ranking
-        ranked_profiles = await self.__bert_rank(query, top_n)
+        # Combine results from all ranking methods
+        combined_results = simple_ranked + tfidf_ranked + bert_ranked
 
-        # Can add more complex ranking functions here
-        
+        # Rank combined results based on frequency and order of appearance
+        ranked_profiles = await self.__rank_combined_results(combined_results, top_n)
+
         return ranked_profiles
