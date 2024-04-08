@@ -1,20 +1,23 @@
+# External imports
 import sqlite3
 import asyncio
 
+# Internal imports
 from .Profile import Profile
 
 class Database:
-    def __init__(self, db_name):
-        self.db_name = db_name
-        self.loop = asyncio.get_event_loop()
+    def __init__(self, db_name: str = 'profiles.db'):
+        self.db_name = db_name  # Database filename
+        self.loop = asyncio.get_event_loop()  # Get the current event loop to use asynchronously in the class
 
     async def create_table(self):
         """
-        Creates the profiles table if it doesn't exist.
+        Asynchronously creates the profiles table if it doesn't exist.
         """
         await self.loop.run_in_executor(None, self._sync_create_table)
 
     def _sync_create_table(self):
+        """Creates the profiles table if it doesn't exist."""
         with sqlite3.connect(self.db_name) as conn:
             cur = conn.cursor()
             cur.execute('''CREATE TABLE IF NOT EXISTS profiles (
@@ -31,12 +34,13 @@ class Database:
 
     async def insert_profile(self, profile: Profile):
         """
-        Inserts a profile into the database.
+        Asynchronously inserts a profile into the database.
         """
         await self.loop.run_in_executor(None, self._sync_insert_profile, profile)
 
     def _sync_insert_profile(self, profile: Profile):
-        profile_data = profile.to_dict()  # Assuming Profile.to_dict() is synchronous and safe to call
+        """Inserts a profile into the database."""
+        profile_data = profile.to_dict()
         with sqlite3.connect(self.db_name) as conn:
             cur = conn.cursor()
             cur.execute('''INSERT OR IGNORE INTO profiles (name, url, department, contact, location, links, summary, publications)
@@ -48,11 +52,12 @@ class Database:
 
     async def profile_exists(self, url: str) -> bool:
         """
-        Checks if a profile exists in the database.
+        Asynchronously checks if a profile exists in the database.
         """
         return await self.loop.run_in_executor(None, self._sync_profile_exists, url)
 
     def _sync_profile_exists(self, url: str) -> bool:
+        """Checks if a profile exists in the database."""
         with sqlite3.connect(self.db_name) as conn:
             cur = conn.cursor()
             cur.execute('SELECT * FROM profiles WHERE url=?', (url,))
@@ -60,11 +65,12 @@ class Database:
 
     async def get_profiles(self) -> list[Profile]:
         """
-        Retrieves all profiles from the database.
+        Asynchronously retrieves all profiles from the database.
         """
         return await self.loop.run_in_executor(None, self._sync_get_profiles)
 
     def _sync_get_profiles(self) -> list[Profile]:
+        """Retrieves all profiles from the database."""
         with sqlite3.connect(self.db_name) as conn:
             cur = conn.cursor()
             cur.execute('SELECT * FROM profiles')
@@ -84,23 +90,21 @@ class Database:
             return profiles
     
     async def fetch_existing_urls(self) -> list[str]:
-        loop = asyncio.get_running_loop()
+        """
+        Asynchronously fetches existing URLs from the database.
+        """
+        loop = asyncio.get_running_loop()  # Get the current event loop. Sometimes the loop is not the same as the class loop
         existing_urls = await loop.run_in_executor(None, self._sync_fetch_existing_urls)
         return existing_urls
     
     def _sync_fetch_existing_urls(self) -> list[str]:
+        """Fetches existing URLs from the database."""
         with sqlite3.connect(self.db_name) as conn:
             cur = conn.cursor()
             cur.execute('SELECT url FROM profiles')
-            return [row[0] for row in cur.fetchall()]
-
-    def close(self):
-        """
-        Closes the database connection.
-        """
-        self.conn.close()
+            return [row[0] for row in cur.fetchall()]  # Return a list of URLs. row[0] is the URL from cur.fetchall()
 
 
 if __name__ == "__main__":
     db = Database('profiles.db')
-    db.close()
+    db.create_table()
