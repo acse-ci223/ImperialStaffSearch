@@ -57,6 +57,10 @@ async def scrape_and_update(delay: int = 60):
                     logging.info(f"Creating task for {url}")
                     task = asyncio.create_task(create_and_save_profile(url))
                     tasks.append(task)
+                else:
+                    logging.warning(f"Updating profile for {url}")
+                    task = asyncio.create_task(update_profile(url))
+                    tasks.append(task)
             
             # Wait for all tasks to finish
             await asyncio.gather(*tasks)
@@ -68,6 +72,21 @@ async def scrape_and_update(delay: int = 60):
         # Wait for the specified delay
         await asyncio.sleep(delay)
 
+async def update_profile(url: str):
+    try:
+        logging.info(f"Updating profile for {url}")
+        # Create a Profile instance asynchronously
+        profile: Profile = await Profile.create(url)
+        
+        # Update the profile in the database asynchronously
+        db = Database()
+        await db.update_profile(profile)  
+        logging.info(f"Profile for {profile.get_data('name')} updated")
+
+    except Exception as exc:
+        logging.warning(f"Profile update failed for {url}")
+        logging.error(exc)
+
 async def create_and_save_profile(url: str):
     try:
         logging.info(f"Creating profile for {url}")
@@ -75,7 +94,7 @@ async def create_and_save_profile(url: str):
         profile: Profile = await Profile.create(url)
         
         # Insert the profile into the database asynchronously
-        db = Database("profiles.db")
+        db = Database()
         await db.insert_profile(profile)  
         logging.info(f"Profile for {profile.get_data('name')} created")
 

@@ -32,6 +32,23 @@ class Database:
                         )''')
             conn.commit()
 
+    async def update_profile(self, profile: Profile):
+        """
+        Asynchronously updates a profile in the database.
+        """
+        await self.loop.run_in_executor(None, self._sync_update_profile, profile)
+
+    def _sync_update_profile(self, profile: Profile):
+        """Updates a profile in the database."""
+        profile_data = profile.to_dict()
+        with sqlite3.connect(self.db_name) as conn:
+            cur = conn.cursor()
+            cur.execute('''UPDATE profiles SET name=?, department=?, contact=?, location=?, links=?, summary=?, publications=?
+                            WHERE url=?''',
+                        (profile_data['name'], profile_data['department'], profile_data['contact'], profile_data['location'],
+                         str(profile_data['links']), profile_data['summary'], str(profile_data['publications']), profile_data['url']))
+            conn.commit()
+
     async def insert_profile(self, profile: Profile):
         """
         Asynchronously inserts a profile into the database.
