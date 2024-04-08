@@ -40,11 +40,11 @@ query = st.text_input("Enter topics you're looking for:")
 col1, col2, col3 = st.columns([1,1,1])
 # Search button
 with col1:
-    quick_search_button = st.button("Quick Search")
+    quick_search_button = st.button("Quick Search", disabled=False, use_container_width=True)
 with col2:
-    norm_search_button = st.button("Normal Search")
+    norm_search_button = st.button("Normal Search", disabled=False, use_container_width=True)
 with col3:
-    long_search_button = st.button("Long Search")
+    long_search_button = st.button("Long Search", disabled=True, use_container_width=True)
 
 # Define a placeholder for search results right after the search bar
 search_results_placeholder = st.empty()
