@@ -28,6 +28,9 @@ RUN apk update && \
      -newkey rsa:2048 -keyout key.pem \
      -out cert.pem;
 
+
+WORKDIR /usr/src/app
+
 # Run frontend.py when the container launches
 # CMD ["streamlit", "run", "frontend.py", "--browser.serverAddress=localhost"]
 # streamlit run app.py --server.enableCORS=false --server.sslKeyFile /tmp/key.pem --server.sslCertFile /tmp/cert.pem
