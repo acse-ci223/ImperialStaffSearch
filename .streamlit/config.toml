@@ -14,18 +14,18 @@ magicEnabled = true
 
 [server]
 
-# sslCertFile = '/usr/src/app/certs/fullchain.pem'
-# sslKeyFile = '/usr/src/app/certs/privkey.pem'
+sslCertFile = '/usr/src/app/certs/fullchain.pem'
+sslKeyFile = '/usr/src/app/certs/privkey.pem'
 
 folderWatchBlacklist = ['/src']
 headless = true
 runOnSave = false
-port = 80
-enableCORS = true
+port = 443
+enableCORS = false
 
 
-[browser]
+# [browser]
 
-serverAddress = "127.0.0.1"
-gatherUsageStats = false
-serverPort = 80
+# serverAddress = "127.0.0.1"
+# gatherUsageStats = false
+# serverPort = 80
