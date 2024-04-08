@@ -19,5 +19,9 @@ RUN ["python", "src/GoogleAnalytics.py"]
 EXPOSE 80
 # EXPOSE 443
 
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout key.pem -out cert.pem
+
 # Run frontend.py when the container launches
-CMD ["streamlit", "run", "frontend.py", "--browser.serverAddress=localhost"]
+# CMD ["streamlit", "run", "frontend.py", "--browser.serverAddress=localhost"]
+# streamlit run app.py --server.enableCORS=false --server.sslKeyFile /tmp/key.pem --server.sslCertFile /tmp/cert.pem
+CMD ["streamlit", "run", "frontend.py", "--server.enableCORS=false", "--server.sslKeyFile", "key.pem", "--server.sslCertFile", "cert.pem"]
