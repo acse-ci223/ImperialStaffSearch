@@ -12,29 +12,16 @@ magicEnabled = true
 # font="sans serif"
 
 
-# [server]
-
-# sslCertFile = '/usr/src/app/certs/fullchain.pem'
-# sslKeyFile = '/usr/src/app/certs/privkey.pem'
-
-# folderWatchBlacklist = ['/src']
-# headless = true
-# runOnSave = false
-# port = 443
-# port = 80
-# enableCORS = true
-
 [server]
 enableCORS = false
 headless = true
 port = 80
 enableXsrfProtection = true
-sslCertFile = "/usr/src/app/certs/fullchain.pem"
-sslKeyFile = "/usr/src/app/certs/privkey.pem"
+# sslCertFile = "/usr/src/app/certs/fullchain.pem"
+# sslKeyFile = "/usr/src/app/certs/privkey.pem"
 
 [browser]
 
 serverAddress = "127.0.0.1"
 gatherUsageStats = false
-# serverPort = 443
 serverPort = 80
