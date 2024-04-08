@@ -14,18 +14,20 @@ magicEnabled = true
 
 [server]
 
-sslCertFile = '/usr/src/app/certs/fullchain.pem'
-sslKeyFile = '/usr/src/app/certs/privkey.pem'
+# sslCertFile = '/usr/src/app/certs/fullchain.pem'
+# sslKeyFile = '/usr/src/app/certs/privkey.pem'
 
 folderWatchBlacklist = ['/src']
 headless = true
 runOnSave = false
-port = 443
+# port = 443
+port = 80
 enableCORS = true
 
 
 [browser]
 
-serverAddress = "iclstaff.com"
+serverAddress = "127.0.0.1"
 gatherUsageStats = false
-serverPort = 443
+# serverPort = 443
+serverPort = 80
