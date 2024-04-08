@@ -8,6 +8,7 @@ import traceback
 # External imports
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
+import dotenv
 
 # Local imports
 from src.Scraper import Scraper
@@ -16,7 +17,6 @@ from src.Database import Database
 from src.LoggerFormatter import CustomFormatter
 from src.Router import Router
 
-import dotenv
 dotenv.load_dotenv(override=True)
 
 class AppMode(str, Enum):  # Enum for the application mode
