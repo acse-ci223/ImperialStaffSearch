@@ -10,11 +10,14 @@ from src.LoggerFormatter import CustomFormatter
 ENDPOINT = "http://backend:8000/profiles"
 DEFAULT_IMAGE = "https://static.vecteezy.com/system/resources/previews/032/176/017/original/business-avatar-profile-black-icon-man-of-user-symbol-in-trendy-flat-style-isolated-on-male-profile-people-diverse-face-for-social-network-or-web-vector.jpg"
 
+# Set up logging
 logging.basicConfig(level=logging.INFO)
-logging.getLogger().handlers[0].setFormatter(CustomFormatter())
+logging.getLogger().handlers[0].setFormatter(CustomFormatter())  # Set custom formatter
 
+# Set page config
 st.set_page_config(page_title="Staff Finder", page_icon="🎓")
 
+# This is a workaround to hide the Streamlit menu and footer
 st.markdown("""
     <style>
         .reportview-container {
@@ -33,6 +36,7 @@ st.title("🎓Imperial College Staff Finder")
 # Search bar
 query = st.text_input("Enter topics you're looking for:")
 
+# Search button
 search_button = st.button("Search")
 
 # Define a placeholder for search results right after the search bar
@@ -47,9 +51,10 @@ def display_placeholders():
             col1, col2 = st.columns([1, 5])
             
             with col1:
-                st.image(DEFAULT_IMAGE, width=150, use_column_width=True)
+                st.image(DEFAULT_IMAGE, width=150, use_column_width=True) # Default image
 
             with col2:
+                # Placeholder for profile information
                 st.markdown("### Loading...")
                 st.markdown("**Department:** Loading...")
                 st.markdown("**Contact:** Loading...")
@@ -67,9 +72,10 @@ def display_profiles(profiles: list[dict]):
     profiles : list[dict]
         The list of profiles to display.
     """
-    search_results_placeholder.empty()
+    search_results_placeholder.empty()  # Clear the placeholders
     
     with search_results_placeholder.container():
+        # Display each profile. They have the same structure as the placeholder
         for profile in profiles:
             col1, col2 = st.columns([1, 5])
 
@@ -77,11 +83,13 @@ def display_profiles(profiles: list[dict]):
             
             with col1:
                 if 'url' in profile and profile['url']:
+
                     try:
                         img_data = requests.get(f"{profile['url']}/portrait.jpg").content
-                        with io.BytesIO(img_data) as f:
+                        with io.BytesIO(img_data) as f: # Open a file-like buffer
                             f.seek(0)
                             st.image(f, width=150, use_column_width=True)
+
                     except Exception as e:
                         img_data = DEFAULT_IMAGE
                         st.image(img_data, width=150, use_column_width=True)
@@ -90,9 +98,10 @@ def display_profiles(profiles: list[dict]):
                     st.image(DEFAULT_IMAGE, width=150, use_column_width=True)
                 
                 if 'url' in profile and profile['url']:
-                    st.markdown(f"[View Full Profile]({profile['url']})", unsafe_allow_html=True)
+                    st.markdown(f"[View Full Profile]({profile['url']})", unsafe_allow_html=True)   # Link to full profile
             
             with col2:
+                # Display profile information
                 st.markdown(f"### {profile.get('name', 'N/A')}")
                 st.markdown(f"**Department:** {profile.get('department', 'N/A')}")
                 st.markdown(f"**Contact:** {profile.get('contact', 'N/A')}")
@@ -116,9 +125,10 @@ def get_profiles(query) -> list[dict] | None:
         A list of profiles if the request is successful, otherwise None.
     """
     try:
-        response = requests.post(ENDPOINT, json={"query": query})
-        if response.status_code == 200:
+        response = requests.post(ENDPOINT, json={"query": query})   # Send POST request
+        if response.status_code == 200:                             # Check if the request is successful
             return response.json()['profiles']
+
     except Exception as e:
         logging.error(f"Failed to retrieve profiles: {e}")
         pass
