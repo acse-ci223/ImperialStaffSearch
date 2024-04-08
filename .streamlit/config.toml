@@ -20,7 +20,7 @@ sslKeyFile = '/usr/src/app/certs/privkey.pem'
 folderWatchBlacklist = ['/src']
 headless = true
 runOnSave = false
-port = 80
+port = 443
 enableCORS = true
 
 
@@ -28,4 +28,4 @@ enableCORS = true
 
 serverAddress = "127.0.0.1"
 gatherUsageStats = false
-serverPort = 80
+serverPort = 443
