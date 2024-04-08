@@ -16,7 +16,7 @@ Staff Finder is a web application designed to streamline the process of searchin
 
 ## Installation
 
-Before running the application, ensure you have Python and Docker installed and set up on your system.
+Before running the application, ensure you have Docker installed and set up on your system.
 
 - [Docker Installation Guide](https://docs.docker.com/get-docker/)
 
