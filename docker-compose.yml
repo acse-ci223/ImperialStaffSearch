@@ -6,7 +6,7 @@ services:
       dockerfile: frontend.Dockerfile
     image: frontend-service
     volumes:
-      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /etc/letsencrypt:/etc/letsencrypt
     ports:
       - "80:80"
     depends_on:
