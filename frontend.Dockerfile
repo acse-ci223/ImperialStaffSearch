@@ -17,12 +17,12 @@ RUN ["python", "src/GoogleAnalytics.py"]
 
 # Make port available to the world outside this container
 EXPOSE 80
-# EXPOSE 443
+EXPOSE 443
 
 COPY ssl_certs.sh /usr/src/app
 RUN chmod +x ssl_certs.sh
 RUN ./ssl_certs.sh
 
 # Run frontend.py when the container launches
-CMD ["streamlit", "run", "frontend.py", "--browser.serverAddress=localhost"]
-# CMD ["streamlit", "run", "frontend.py", "--server.enableCORS=false", "--server.sslKeyFile", "certs/key.pem", "--server.sslCertFile", "certs/cert.pem"]
+# CMD ["streamlit", "run", "frontend.py", "--browser.serverAddress=localhost"]
+CMD ["streamlit", "run", "frontend.py", "--server.enableCORS=false", "--server.sslKeyFile", "certs/key.pem", "--server.sslCertFile", "certs/cert.pem"]
