@@ -77,11 +77,11 @@ async def update_profile(url: str):
         logging.info(f"Updating profile for {url}")
         # Create a Profile instance asynchronously
         profile: Profile = await Profile.create(url)
-        
-        # Update the profile in the database asynchronously
-        db = Database()
-        await db.update_profile(profile)  
-        logging.info(f"Profile for {profile.get_data('name')} updated")
+        db_profile: Profile = await Database().fetch_profile(url)
+        if len(str(profile)) > len(str(db_profile)):
+            # Update the profile in the database asynchronously
+            await Database().update_profile(profile)  
+            logging.info(f"Profile for {profile.get_data('name')} updated")
 
     except Exception as exc:
         logging.warning(f"Profile update failed for {url}")

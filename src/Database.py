@@ -134,6 +134,31 @@ class Database:
             '''
             cur.execute(query)
             return [row[0] for row in cur.fetchall()]  # Return a list of URLs. row[0] is the URL from cur.fetchall()
+    
+    async def fetch_profile(self, url: str) -> Profile:
+        """
+        Asynchronously fetches a profile from the database.
+        """
+        return await self.loop.run_in_executor(None, self._sync_fetch_profile, url)
+    
+    def _sync_fetch_profile(self, url: str) -> Profile:
+        """Fetches a profile from the database."""
+        with sqlite3.connect(self.db_name) as conn:
+            cur = conn.cursor()
+            cur.execute('SELECT * FROM profiles WHERE url=?', (url,))
+            row = cur.fetchone()
+            if row:
+                profile_data = {
+                    'name': row[0],
+                    'department': row[2],
+                    'contact': row[3],
+                    'location': row[4],
+                    'links': eval(row[5]),
+                    'summary': row[6],
+                    'publications': eval(row[7])
+                }
+                return Profile(url=row[1], **profile_data)
+            return Profile(url=url)
 
 
 if __name__ == "__main__":
