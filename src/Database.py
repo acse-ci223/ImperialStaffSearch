@@ -90,12 +90,13 @@ class Database:
         """Retrieves all profiles from the database."""
         with sqlite3.connect(self.db_name) as conn:
             cur = conn.cursor()
-            query = '''
-            SELECT * FROM profiles
-            WHERE name != 'N/A' AND
-                department != 'N/A'
-            '''
-            cur.execute(query)
+            # query = '''
+            # SELECT * FROM profiles
+            # WHERE name != 'N/A' AND
+            #     department != 'N/A'
+            # '''
+            # cur.execute(query)
+            cur.execute('SELECT * FROM profiles')
             profiles = []
             for row in cur.fetchall():
                 profile_data = {
