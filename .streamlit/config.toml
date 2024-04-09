@@ -13,7 +13,7 @@ magicEnabled = true
 
 
 [server]
-enableCORS = false
+enableCORS = true
 headless = true
 port = 80
 enableXsrfProtection = true
